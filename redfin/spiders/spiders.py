@@ -4,41 +4,101 @@
 from scrapy.http import Request
 from scrapy.spiders import Spider
 from redfin.items import RedfinItem
+from datetime import datetime
 import pymongo
+import csv
 
 class RedfinSpider(Spider):
   
   name = "RedfinSpider"
+  urls = set()
 
-  def config_database(self):
+  def start_requests(self):
     config = self.crawler.settings.get('CONFIG')
     self.client = pymongo.MongoClient(config['mongo_db_redfin']['hosts'])
     with self.client:
-      self.db = self.client[config['mongo_db_redfin']['room_database']]
-      self.cursor = self.db['us'].find()    # only collection named us
-
-  def start_requests(self):
-    for document in self.cursor:
-      zipcode = document['_id']
-      if zipcode == '98327':    # test lock
+      self.db = self.client[config['mongo_db_redfin']['zipcode_database']]
+      self.cursor = self.db['us'].find()   # only collection named us
+      for document in self.cursor:
+        zipcode = document['_id']
+        #if zipcode == '75232'    # test lock
         url = "https://www.redfin.com/zipcode/"+zipcode
-        yield Request(url=url,callback=parse_zipcode)
+        yield Request(url=url,callback=self.parse_zipcode)
 
   def parse_zipcode(self,response):
     # parse url like 'https://www.redfin.com/zipcode/98327'
     # get new request whose url links to csv
-    csv_url = response.xpath('      ')
-    return Request(url=csv_url,callback=parse_csv)
+    csv_url = response.xpath('//a[@id="download-and-save"]/@href').extract_first()
+    if csv_url:
+      url = 'https://www.redfin.com' + csv_url
+      return Request(url=url,callback=self.parse_csv)
 
   def parse_csv(self,response):
     # every line of csv is a item
-    items_strings = response.body.split('\n')
-    for line in items_strings:
-      fields = line.split(',')
-      item = RedfinItem()
-      item['sale_type'] = fields[0]
-      item['price'] = 
+    items_strings = response.body.decode().split('\n')
+    for index, line in enumerate(items_strings):      
+      if index != 0 and line:
+        fields = next(csv.reader(line.splitlines(), skipinitialspace=True))
+        if len(fields) == 27:
+          item = RedfinItem()
+          item['sale_listing'] = fields[0]
+          item['sold_date'] = fields[1]
+          item['property_type'] = fields[2]
+          item['address'] = fields[3]
+          item['city'] = fields[4]
+          item['state'] = fields[5]
+          item['zipcode'] = fields[6]
+          item['price'] = fields[7]
+          item['beds'] = fields[8]
+          item['baths'] = fields[9]
+          item['location'] = fields[10]
+          item['square_feet'] = fields[11]
+          item['lot_size'] = fields[12]
+          item['year_build'] = fields[13]
+          item['days_on_market'] = fields[14]
+          item['square_feet_price'] = fields[15]
+          item['hoa_month'] = fields[16]
+          item['status'] = fields[17]
+          item['url'] = fields[20]
+          item['source'] = fields[21]
+          item['mls'] = fields[22]
+          item['latitude'] = fields[25]
+          item['longitude'] = fields[26]
+          item['history'] = [{
+                                'date' : datetime.today(),
+                                'price' : fields[7],
+                                'status' : fields[17]
+                            }]
+          item['initial_date'] = datetime.today()
+          if item['url'] not in self.urls:
+            self.urls.add(item['url'])
+            yield item
 
 
-      #item['longitude']
-      return item
+class RedfinSpiderdb(Spider):
+  
+  name = "RedfinSpiderdb"
+
+  def start_requests(self):
+    config = self.crawler.settings.get('CONFIG')
+    self.client = pymongo.MongoClient(config['mongo_db_redfin']['hosts'])
+    with self.client:
+      self.db = self.client[config['mongo_db_redfin']['room_database']]
+      self.collection = self.db['Rooms']
+      cursor = self.collection.find({'status':{'$ne':'Active'}})
+      for index,item in enumerate(cursor):
+        if index == 0:
+          url = item['url']
+          self.mls = item['mls']
+          self.days_on_market = item['days_on_market']
+          yield Request(url=url,callback=self.parse_web)
+
+  def parse_web(self, response):
+    item = RedfinItem()
+    item['status'] = response.xpath('//span[@class="HomeBottomStats status-container"]/span/span[2]/div/span/text()').extract_first()
+    item['price'] = response.xpath('//div[contains(@class,"HomeMainStats home-info")]/div/div/div/span[2]/text()').extract_first()
+    item['mls'] = self.mls
+    item['days_on_market'] = self.days_on_market
+    yield item
+
+

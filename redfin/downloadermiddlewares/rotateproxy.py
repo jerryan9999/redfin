@@ -85,6 +85,8 @@ class ProxyMiddleware(object):
     """ Make request with agent
     """
     #self.maintaining_agent()
+    #request.meta['proxy'] = "192.168.1.1"
+    #request.meta['agent'] = Agent(request.meta['proxy'] = "192.168.1.1")
     request.meta['agent'] = random.choice(list(filter(lambda x: x.is_valid(),self.agent_list)))
     request.meta['proxy'] = request.meta['agent'].proxy
     request.meta['download_slot'] = self.get_proxy_slot(request.meta['proxy'])
@@ -111,31 +113,19 @@ class ProxyMiddleware(object):
         return self._new_request_from_response(request)           
       return response
 
-#    elif response.status ==302:
-#      # Redirecting (302) to <GET https://www.zillow.com/captcha/?dest=qiMbUzSCa1MGIlhrB-2stg> from <GET https://www.zillow.com/
-#      location = safe_url_string(response.headers['location'])
-#      redirected_url = urljoin(request.url, location)#
+    elif response.status ==302:
+      # Redirecting (302) to <GET https://www.redfin.com/zipcode/10011> https://www.redfin.com/out-of-area-signup
+      if 'out-of-area-signup' in response.url:
+        logger.info("IgnoreRequest: {} Because url not exist".format(request.url))
+        raise IgnoreRequest
 
-#      if response.headers.get('location'):
-#        if b'captcha' in response.headers[b'Location'] :
-#          logger.debug("Redirecting (302) to captcha including url, so we make a new request for url:{}".format(request))
-#          for k in range(2):
-#            agent.weaken()
-#          return self._new_request_from_response(request)
-#        if b"AuthRequired" in response.headers[b'Location']:
-#          logger.debug("Redirecting (302) to authrequired page, so we ignore it:{}".format(request))
-#          agent.stronger()
-#          raise IgnoreRequest
-#        return response
-#      return response#
-
-#    elif response.status ==403:
-#      if 'zillow.com' in response.url:
-#        agent.set_invalid()
-#        logger.info("Proxy: {} meet {} ".format(agent.proxy,reason))
-#        return self._new_request_from_response(request)
-#      else:
-#        raise IgnoreRequest#
+    elif response.status ==403:
+      if 'redfin.com' in response.url:
+        agent.set_invalid()
+        logger.info("Proxy: {} meet {} ".format(agent.proxy,reason))
+        return self._new_request_from_response(request)
+      else:
+        raise IgnoreRequest#
 
 #    elif response.status == 404:
 #      if "alogin" in response.url:
