@@ -13,6 +13,7 @@ from scrapy.downloadermiddlewares.httpproxy import HttpProxyMiddleware
 
 from twisted.internet import task
 from scrapy import signals
+import math
 
 from .agent_proxy import Agent
 
@@ -84,9 +85,6 @@ class ProxyMiddleware(object):
   def process_request(self, request, spider):
     """ Make request with agent
     """
-    #self.maintaining_agent()
-    #request.meta['proxy'] = "192.168.1.1"
-    #request.meta['agent'] = Agent(request.meta['proxy'] = "192.168.1.1")
     request.meta['agent'] = random.choice(list(filter(lambda x: x.is_valid(),self.agent_list)))
     request.meta['proxy'] = request.meta['agent'].proxy
     request.meta['download_slot'] = self.get_proxy_slot(request.meta['proxy'])
@@ -152,3 +150,32 @@ class ProxyMiddleware(object):
     if self.task and self.task.running:
       self.task.stop()
     self.client.close()
+
+class TopProxyMiddleware(ProxyMiddleware):
+  """
+      Make statistics for the proxies during certain period, then random choose one from the top 8(default) valided proxies to use
+  """
+
+  def process_request(self, request, spider):
+    """  Proxy choose strategy:
+        
+        Choose the top (toppercent %) best proxy
+    """
+    toppercent= 0.60     # if this value is too small, that means that used proxy converges to a small set
+    randomize_top = True     # randomly choose one 
+    valid_proxy_list = list(filter(lambda x:x.is_valid(),self.agent_list))
+    topindex =  math.ceil(toppercent*len(valid_proxy_list)) 
+
+    #self.maintaining_agent()
+    sortedagentlist = sorted(valid_proxy_list, key = lambda i: i.percentage)
+    while len(valid_proxy_list) < 10:
+      logger.info("Proxy list are nearly used up, let's have a rest")
+      self.maintaining_agent()
+      valid_proxy_list = list(filter(lambda x:x.is_valid(),self.agent_list))
+      sortedagentlist = sorted(valid_proxy_list, key = lambda i: i.percentage)
+      time.sleep(30)
+    request.meta['agent'] =  random.choice(sortedagentlist[-topindex: ]) if randomize_top else sortedagentlist[-1]
+    request.meta['proxy'] = request.meta['agent'].proxy
+    request.meta['download_slot'] = self.get_proxy_slot(request.meta['proxy'])
+    logger.debug("Request %(request)s using proxy:%(proxy)s",
+                    {'request':request, 'proxy':request.meta['proxy']})

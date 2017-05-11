@@ -22,15 +22,15 @@ USER_AGENT =  "Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, li
 ROBOTSTXT_OBEY = False
 
 # Configure maximum concurrent requests performed by Scrapy (default: 16)
-#CONCURRENT_REQUESTS = 32
+CONCURRENT_REQUESTS = 64
 
 # Configure a delay for requests for the same website (default: 0)
 # See http://scrapy.readthedocs.org/en/latest/topics/settings.html#download-delay
 # See also autothrottle settings and docs
-DOWNLOAD_DELAY = 1
+DOWNLOAD_DELAY = 0.2
 # The download delay setting will honor only one of:
-CONCURRENT_REQUESTS_PER_DOMAIN = 16
-CONCURRENT_REQUESTS_PER_IP = 16
+CONCURRENT_REQUESTS_PER_DOMAIN = 64
+CONCURRENT_REQUESTS_PER_IP = 64
 
 # Disable cookies (enabled by default)
 COOKIES_ENABLED = False
@@ -44,17 +44,23 @@ DEFAULT_REQUEST_HEADERS = {
    'Accept-Language': 'en',
 }
 
+# Download timeout value
+DOWNLOAD_TIMEOUT = 20      # default timeout is 3mins(180s)
+
 # Enable or disable spider middlewares
 # See http://scrapy.readthedocs.org/en/latest/topics/spider-middleware.html
 #SPIDER_MIDDLEWARES = {
 #    'redfin.middlewares.RedfinSpiderMiddleware': 543,
 #}
 
+LOGSTATS_INTERVAL = 60.0
+IPPOOLSTATS_INTERVAL = 480.0
+
 # Enable or disable downloader middlewares
 # See http://scrapy.readthedocs.org/en/latest/topics/downloader-middleware.html
 DOWNLOADER_MIDDLEWARES = {
   'redfin.downloadermiddlewares.rotate_useragent.RotateUserAgentMiddleware':530,
-  'redfin.downloadermiddlewares.rotateproxy.ProxyMiddleware':550
+  'redfin.downloadermiddlewares.rotateproxy.TopProxyMiddleware':550
 }
 
 # Enable or disable extensions
@@ -67,6 +73,10 @@ DOWNLOADER_MIDDLEWARES = {
 # See http://scrapy.readthedocs.org/en/latest/topics/item-pipeline.html
 ITEM_PIPELINES = {
     'redfin.pipelines.RedfinRoomPipeline' : 400
+}
+
+EXTENSIONS = {
+  'redfin.extensions.logstats.IpLogStats':100,
 }
 
 # Enable and configure the AutoThrottle extension (disabled by default)

@@ -4,6 +4,6 @@ mongo_db_redfin:
   room_database: Redfin
 
 mongo_db_proxy:
-  hosts: localhost
+  hosts: 192.168.50.69
   proxy_database: ProxyPool
   proxy_collection: IPs
