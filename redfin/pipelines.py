@@ -14,7 +14,7 @@ logger = logging.getLogger(__name__)
 
 class RedfinRoomPipeline(object):
 
-  collection = 'Rooms5'
+  collection = 'Rooms'
 
   def open_spider(self, spider):
     config = spider.settings.get('CONFIG')

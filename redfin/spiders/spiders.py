@@ -21,9 +21,9 @@ class RedfinSpider(Spider):
       self.cursor = self.db['us'].find()   # only collection named us
       for document in self.cursor:
         zipcode = document['_id']
-        if zipcode == '98327':   # test lock
-          url = "https://www.redfin.com/zipcode/"+zipcode
-          yield Request(url=url,callback=self.parse_zipcode)
+        #if zipcode == '98327':   # test lock
+        url = "https://www.redfin.com/zipcode/"+zipcode
+        yield Request(url=url,callback=self.parse_zipcode)
 
   def parse_zipcode(self,response):
     # parse url like 'https://www.redfin.com/zipcode/98327'
@@ -80,7 +80,6 @@ class RedfinSpiderdb(Spider):
   
   name = "RedfinSpiderdb"
   DAY = datetime.combine(date.today(), time(0))
-  #DAY = datetime(2017, 5, 10, 0, 0, 0)
   ONE_DAY = timedelta(days=1)
 
   def start_requests(self):
@@ -89,7 +88,7 @@ class RedfinSpiderdb(Spider):
     self.client = pymongo.MongoClient(config['mongo_db_redfin']['hosts'])
     with self.client:
       self.db = self.client[config['mongo_db_redfin']['room_database']]
-      self.collection = self.db['Rooms5']
+      self.collection = self.db['Rooms']
       cursor = self.collection.find({"last_update":{"$nin":[self.DAY]}, "history.date":{"$gte":self.DAY-self.ONE_DAY, "$lt":self.DAY+self.ONE_DAY}, "status":{"$ne":"sold"}})
       for item in cursor:
         url = item['url']
