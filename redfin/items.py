@@ -36,5 +36,6 @@ class RedfinItem(scrapy.Item):
     latitude = scrapy.Field()        
     longitude = scrapy.Field()                 
     history = scrapy.Field()
-    initial_date = scrapy.Field()       
+    initial_date = scrapy.Field()
+    last_update = scrapy.Field()       
 

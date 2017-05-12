@@ -4,7 +4,7 @@
 from scrapy.http import Request
 from scrapy.spiders import Spider
 from redfin.items import RedfinItem
-from datetime import datetime
+from datetime import datetime, date, timedelta, time
 import pymongo
 import csv
 
@@ -21,7 +21,7 @@ class RedfinSpider(Spider):
       self.cursor = self.db['us'].find()   # only collection named us
       for document in self.cursor:
         zipcode = document['_id']
-        #if zipcode == '75232'    # test lock
+        #if zipcode == '98327':   # test lock
         url = "https://www.redfin.com/zipcode/"+zipcode
         yield Request(url=url,callback=self.parse_zipcode)
 
@@ -70,6 +70,7 @@ class RedfinSpider(Spider):
                                 'status' : fields[17]
                             }]
           item['initial_date'] = datetime.today()
+          item['last_update'] = datetime.combine(date.today(), time(0))
           if item['url'] not in self.urls:
             self.urls.add(item['url'])
             yield item
@@ -78,27 +79,32 @@ class RedfinSpider(Spider):
 class RedfinSpiderdb(Spider):
   
   name = "RedfinSpiderdb"
+  DAY = datetime.combine(date.today(), time(0))
+  ONE_DAY = timedelta(days=1)
 
   def start_requests(self):
+    one_day = timedelta(days=1)
     config = self.crawler.settings.get('CONFIG')
     self.client = pymongo.MongoClient(config['mongo_db_redfin']['hosts'])
     with self.client:
       self.db = self.client[config['mongo_db_redfin']['room_database']]
       self.collection = self.db['Rooms']
-      cursor = self.collection.find({'status':{'$ne':'Active'}})
-      for index,item in enumerate(cursor):
-        if index == 0:
-          url = item['url']
-          self.mls = item['mls']
-          self.days_on_market = item['days_on_market']
-          yield Request(url=url,callback=self.parse_web)
+      cursor = self.collection.find({"last_update":{"$nin":[self.DAY]}, "history.date":{"$gte":self.DAY-self.ONE_DAY, "$lt":self.DAY+self.ONE_DAY}, "status":{"$ne":"sold"}})
+      for item in cursor:
+        url = item['url']
+        yield Request(url=url,callback=self.parse_web,meta={'item':item})
 
   def parse_web(self, response):
     item = RedfinItem()
-    item['status'] = response.xpath('//span[@class="HomeBottomStats status-container"]/span/span[2]/div/span/text()').extract_first()
+    item = response.meta['item']
+    status = response.xpath('//span[@class="HomeBottomStats status-container"]/span/span[2]/div/span/text()').extract_first()
+    if status and 'sold' in status.lower():
+      item['status'] = 'sold'
+      item['sold_date'] = self.DAY
+    else:
+      item['status'] = status
     item['price'] = response.xpath('//div[contains(@class,"HomeMainStats home-info")]/div/div/div/span[2]/text()').extract_first()
-    item['mls'] = self.mls
-    item['days_on_market'] = self.days_on_market
-    yield item
+    item['last_update'] = datetime.combine(date.today(), time(0))
+    return item
 
 

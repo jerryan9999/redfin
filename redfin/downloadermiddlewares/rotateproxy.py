@@ -9,6 +9,7 @@ from twisted.web._newclient import ResponseNeverReceived,ParseError
 from twisted.internet.error import TimeoutError,ConnectionRefusedError, ConnectError,ConnectionLost,TCPTimedOutError,ConnectBindError
 from scrapy.utils.response import response_status_message
 from scrapy.exceptions import IgnoreRequest
+from scrapy.core.downloader.handlers.http11 import TunnelError
 from scrapy.downloadermiddlewares.httpproxy import HttpProxyMiddleware
 
 from twisted.internet import task
@@ -26,7 +27,7 @@ class ProxyMiddleware(object):
   """
   # Change another proxy instead of passing to RetryMiddlewares when met these errors
   DONT_RETRY_ERRORS = (TimeoutError,ConnectionRefusedError,TCPTimedOutError,
-                      ResponseNeverReceived, ConnectError, ConnectBindError)
+                      ResponseNeverReceived, ConnectError, ConnectBindError, TunnelError)
 
   agent_list = []
 
