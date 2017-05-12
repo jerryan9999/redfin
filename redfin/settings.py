@@ -22,15 +22,15 @@ USER_AGENT =  "Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, li
 ROBOTSTXT_OBEY = False
 
 # Configure maximum concurrent requests performed by Scrapy (default: 16)
-CONCURRENT_REQUESTS = 64
+CONCURRENT_REQUESTS = 32
 
 # Configure a delay for requests for the same website (default: 0)
 # See http://scrapy.readthedocs.org/en/latest/topics/settings.html#download-delay
 # See also autothrottle settings and docs
 DOWNLOAD_DELAY = 0.2
 # The download delay setting will honor only one of:
-CONCURRENT_REQUESTS_PER_DOMAIN = 64
-CONCURRENT_REQUESTS_PER_IP = 64
+CONCURRENT_REQUESTS_PER_DOMAIN = 32
+CONCURRENT_REQUESTS_PER_IP = 32
 
 # Disable cookies (enabled by default)
 COOKIES_ENABLED = False
@@ -59,8 +59,9 @@ IPPOOLSTATS_INTERVAL = 480.0
 # Enable or disable downloader middlewares
 # See http://scrapy.readthedocs.org/en/latest/topics/downloader-middleware.html
 DOWNLOADER_MIDDLEWARES = {
+  'scrapy.downloadermiddlewares.httpproxy.HttpProxyMiddleware':None,
   'redfin.downloadermiddlewares.rotate_useragent.RotateUserAgentMiddleware':530,
-  'redfin.downloadermiddlewares.rotateproxy.TopProxyMiddleware':550
+  'redfin.downloadermiddlewares.rotateproxy.TopProxyMiddleware':760
 }
 
 # Enable or disable extensions
@@ -78,6 +79,11 @@ ITEM_PIPELINES = {
 EXTENSIONS = {
   'redfin.extensions.logstats.IpLogStats':100,
 }
+
+RETRY_ENABLED = True
+RETRY_TIMES = 3  # initial response + 3 retries = 4 requests
+RETRY_HTTP_CODES = [500, 502, 503, 504, 408, 404]
+RETRY_PRIORITY_ADJUST = -1
 
 # Enable and configure the AutoThrottle extension (disabled by default)
 # See http://doc.scrapy.org/en/latest/topics/autothrottle.html

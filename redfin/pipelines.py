@@ -8,14 +8,13 @@
 import logging
 import pymongo
 from datetime import datetime
-from pprint import pprint
 
 
 logger = logging.getLogger(__name__)
 
 class RedfinRoomPipeline(object):
 
-  collection = 'Rooms3'
+  collection = 'Rooms5'
 
   def open_spider(self, spider):
     config = spider.settings.get('CONFIG')
@@ -32,14 +31,19 @@ class RedfinRoomPipeline(object):
     if count == 0:
       collection.insert(item)
     else:
-      collection.update_one({'mls':item['mls'], 'zipcode':item['zipcode']}, 
-                            { '$set':{'price':item['price'], 'status':item['status'], 'days_on_market':item['days_on_market']},
-                              '$push':{'history':{
-                                'date' : datetime.today(),
-                                'price' : item['price'],
-                                'status' : item['status']}
-                              } 
-      })
+      update = {
+                'price':item['price'],
+                'status':item['status'], 
+                'days_on_market':item['days_on_market'],
+                'sold_date':item['sold_date'],
+                'last_update':item['last_update']
+      }
+      history = {
+                'date':datetime.today(),
+                'price':item['price'],
+                'status':item['status']
+      }
+      collection.update_one({'mls':item['mls'], 'zipcode':item['zipcode']}, {'$set': update, '$push':{'history':history}})
 
   def close_spider(self, spider):
     self.client.close()
