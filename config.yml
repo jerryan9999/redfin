@@ -1,9 +1,0 @@
-mongo_db_redfin:
-  hosts: localhost
-  zipcode_database: Zipcodes
-  room_database: Redfin
-
-mongo_db_proxy:
-  hosts: localhost
-  proxy_database: ProxyPool
-  proxy_collection: IPs

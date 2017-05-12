@@ -14,7 +14,7 @@ class RotateUserAgentMiddleware(UserAgentMiddleware):
 
   useragent_list = []
   #useragentFile = os.path.dirname(os.getcwd()) + '/useragentlist.txt'
-  useragentFile = '/Users/cydream/python/crawlers/useragentlist.txt'
+  useragentFile = './useragentlist.txt'
 
   def __init__(self,user_agent="Scrapy"):
     self.user_agent = user_agent
