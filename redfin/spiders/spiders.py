@@ -18,12 +18,12 @@ class RedfinSpider(Spider):
     self.client = pymongo.MongoClient(config['mongo_db_redfin']['hosts'])
     with self.client:
       self.db = self.client[config['mongo_db_redfin']['zipcode_database']]
-      self.cursor = self.db['us'].find()   # only collection named us
+      self.cursor = self.db['us'].find({}, no_cursor_timeout=True)   # only collection named us
       for document in self.cursor:
         zipcode = document['_id']
-        #if zipcode == '98327':   # test lock
-        url = "https://www.redfin.com/zipcode/"+zipcode
-        yield Request(url=url,callback=self.parse_zipcode)
+        if zipcode == '98327' or zipcode == '75231':# test lock
+          url = "https://www.redfin.com/zipcode/"+zipcode
+          yield Request(url=url,callback=self.parse_zipcode)
 
   def parse_zipcode(self,response):
     # parse url like 'https://www.redfin.com/zipcode/98327'
@@ -89,13 +89,12 @@ class RedfinSpiderdb(Spider):
     with self.client:
       self.db = self.client[config['mongo_db_redfin']['room_database']]
       self.collection = self.db['Rooms']
-      cursor = self.collection.find({"last_update":{"$nin":[self.DAY]}, "history.date":{"$gte":self.DAY-self.ONE_DAY, "$lt":self.DAY+self.ONE_DAY}, "status":{"$ne":"sold"}})
+      cursor = self.collection.find({"last_update":{"$nin":[self.DAY]}, "history.date":{"$gte":self.DAY-self.ONE_DAY, "$lt":self.DAY}, "status":{"$ne":"sold"}})
       for item in cursor:
         url = item['url']
         yield Request(url=url,callback=self.parse_web,meta={'item':item})
 
   def parse_web(self, response):
-    item = RedfinItem()
     item = response.meta['item']
     status = response.xpath('//span[@class="HomeBottomStats status-container"]/span/span[2]/div/span/text()').extract_first()
     if status and 'sold' in status.lower():
