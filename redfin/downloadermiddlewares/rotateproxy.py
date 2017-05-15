@@ -114,7 +114,7 @@ class ProxyMiddleware(object):
 
     elif response.status ==302:
       # Redirecting (302) to <GET https://www.redfin.com/zipcode/10011> https://www.redfin.com/out-of-area-signup
-      if 'out-of-area-signup' in response.url:
+      if 'out-of-area-signup'.encode() in response.headers['location']:
         logger.info("IgnoreRequest: {} Because url not exist".format(request.url))
         raise IgnoreRequest
 
@@ -136,7 +136,7 @@ class ProxyMiddleware(object):
     """Handle some connection error, make another request when these error happens
     """        
     agent = request.meta.get('agent')
-    for i in range(5):
+    for i in range(2):
       agent.weaken()
     if isinstance(exception,self.DONT_RETRY_ERRORS):
       logger.debug("Normal exception happened proxy:{} for processing {}".format(request.meta['proxy'],request.url))
