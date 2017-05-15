@@ -136,7 +136,7 @@ class ProxyMiddleware(object):
     """Handle some connection error, make another request when these error happens
     """        
     agent = request.meta.get('agent')
-    for i in range(5):
+    for i in range(2):
       agent.weaken()
     if isinstance(exception,self.DONT_RETRY_ERRORS):
       logger.debug("Normal exception happened proxy:{} for processing {}".format(request.meta['proxy'],request.url))
