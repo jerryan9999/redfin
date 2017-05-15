@@ -114,7 +114,7 @@ class ProxyMiddleware(object):
 
     elif response.status ==302:
       # Redirecting (302) to <GET https://www.redfin.com/zipcode/10011> https://www.redfin.com/out-of-area-signup
-      if 'out-of-area-signup' in response.url:
+      if 'out-of-area-signup'.encode() in response.headers['location']:
         logger.info("IgnoreRequest: {} Because url not exist".format(request.url))
         raise IgnoreRequest
 
