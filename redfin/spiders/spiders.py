@@ -21,9 +21,9 @@ class RedfinSpider(Spider):
       self.cursor = self.db['us'].find({}, no_cursor_timeout=True)   # only collection named us
       for document in self.cursor:
         zipcode = document['_id']
-        if zipcode == '98327' or zipcode == '75231':# test lock
-          url = "https://www.redfin.com/zipcode/"+zipcode
-          yield Request(url=url,callback=self.parse_zipcode)
+        #if zipcode == '98327' or zipcode == '75231':# test lock
+        url = "https://www.redfin.com/zipcode/"+zipcode
+        yield Request(url=url,callback=self.parse_zipcode)
 
   def parse_zipcode(self,response):
     # parse url like 'https://www.redfin.com/zipcode/98327'
