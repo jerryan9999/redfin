@@ -54,7 +54,7 @@ DOWNLOAD_TIMEOUT = 60      # default timeout is 3mins(180s)
 #}
 
 LOGSTATS_INTERVAL = 60.0
-IPPOOLSTATS_INTERVAL = 180.0
+IPPOOLSTATS_INTERVAL = 600.0
 
 # Enable or disable downloader middlewares
 # See http://scrapy.readthedocs.org/en/latest/topics/downloader-middleware.html
@@ -66,9 +66,9 @@ DOWNLOADER_MIDDLEWARES = {
 
 # Enable or disable extensions
 # See http://scrapy.readthedocs.org/en/latest/topics/extensions.html
-#EXTENSIONS = {
-#    'scrapy.extensions.telnet.TelnetConsole': None,
-#}
+EXTENSIONS = {
+   'scrapy.extensions.telnet.TelnetConsole': None,
+}
 
 # Configure item pipelines
 # See http://scrapy.readthedocs.org/en/latest/topics/item-pipeline.html
