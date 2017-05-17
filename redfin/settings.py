@@ -66,9 +66,9 @@ DOWNLOADER_MIDDLEWARES = {
 
 # Enable or disable extensions
 # See http://scrapy.readthedocs.org/en/latest/topics/extensions.html
-EXTENSIONS = {
-   'scrapy.extensions.telnet.TelnetConsole': None,
-}
+#EXTENSIONS = {
+#    'scrapy.extensions.telnet.TelnetConsole': None,
+#}
 
 # Configure item pipelines
 # See http://scrapy.readthedocs.org/en/latest/topics/item-pipeline.html
@@ -76,9 +76,9 @@ ITEM_PIPELINES = {
     'redfin.pipelines.RedfinRoomPipeline' : 400
 }
 
-# EXTENSIONS = {
-#   'redfin.extensions.logstats.IpLogStats':100,
-# }
+EXTENSIONS = {
+  'redfin.extensions.logstats.IpLogStats':100,
+}
 
 RETRY_ENABLED = True
 RETRY_TIMES = 3  # initial response + 3 retries = 4 requests
