@@ -14,24 +14,12 @@ class RedfinSpider(Spider):
   urls = set()
 
   def start_requests(self):
-    config = self.crawler.settings.get('CONFIG')
-    self.client = pymongo.MongoClient(config['mongo_db_redfin']['hosts'])
-    with self.client:
-      self.db = self.client[config['mongo_db_redfin']['zipcode_database']]
-      self.cursor = self.db['us'].find({}, no_cursor_timeout=True)   # only collection named us
-      for document in self.cursor:
-        zipcode = document['_id']
-        #if zipcode == '98327' or zipcode == '75231':# test lock
-        url = "https://www.redfin.com/zipcode/"+zipcode
-        yield Request(url=url,callback=self.parse_zipcode)
-
-  def parse_zipcode(self,response):
-    # parse url like 'https://www.redfin.com/zipcode/98327'
-    # get new request whose url links to csv
-    csv_url = response.xpath('//a[@id="download-and-save"]/@href').extract_first()
-    if csv_url:
-      url = 'https://www.redfin.com' + csv_url
-      return Request(url=url,callback=self.parse_csv)
+    all_urls = []
+    with open('urls.txt') as f:
+      for line in f:
+        all_urls.append(line.strip("\n"))
+    for u in all_urls:
+      yield Request(url=u,callback=self.parse_csv)
 
   def parse_csv(self,response):
     # every line of csv is a item
