@@ -114,7 +114,7 @@ RETRY_PRIORITY_ADJUST = -1
 
 # Logging 
 import time
-LOG_LEVEL = 'DEBUG'   # default: 'DEBUG'
+LOG_LEVEL = 'INFO'   # default: 'DEBUG'
 LOG_FILE = "logs/scrapy_%s_%s.log"%(BOT_NAME, int(time.time()))
 
 import yaml
