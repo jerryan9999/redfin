@@ -11,7 +11,7 @@ cd '/srv/crawlers/venv/'
 
 # starts crawling
 cd $ProjectPath
-scrapy crawl RedfinSpider && python3 "writing_to_db.py" && scrapy crawl RedfinSpiderdb
+scrapy crawl RedfinSpider && python3 "writing_to_db.py" &&  rm tmp/* &&scrapy crawl RedfinSpiderdb 
 
 # email report
 python3 "email_report.py"
