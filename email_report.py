@@ -12,7 +12,7 @@ sys.path.append(utils_path)
 
 import mail
 
-with open("../config.yml") as f:
+with open("config.yml") as f:
   config = yaml.load(f)
 
 DAY = datetime.combine(date.today(), time(0))
@@ -21,7 +21,7 @@ def get_daily_report():
   states = ('CA', 'TX', 'NJ', 'NY', 'FL', 'MA', 'WA', 'OR', 'DC', 'VA', 'MD')
   client = pymongo.MongoClient(config['mongo_db_redfin']['hosts'])
   with client:
-    collection = client[config['mongo_db_redfin']['room_database']]['Rooms3']
+    collection = client[config['mongo_db_redfin']['room_database']]['Rooms']
     tables = []
     for state in states:
       alive = collection.find({'state':state, 'status':{'$ne':'sold'}}).count()

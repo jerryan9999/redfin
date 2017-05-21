@@ -14,14 +14,6 @@ class RedfinSpider(Spider):
   name = "RedfinSpider"
   urls = set()
 
-#  def start_requests(self):
-#    all_urls = []
-#    with open('urls.txt') as f:
-#      for line in f:
-#        all_urls.append(line.strip("\n"))
-#    for index,u in enumerate(all_urls):
-#      yield Request(url=u,callback=self.download_csv,meta={'sequence':index})
-
   def start_requests(self):
     config = self.crawler.settings.get('CONFIG')
     self.client = pymongo.MongoClient(config['mongo_db_redfin']['hosts'])
@@ -107,6 +99,7 @@ class RedfinSpiderdb(Spider):
       cursor = self.collection.find({"last_update":{"$nin":[self.DAY]}, "history.date":{"$gte":self.DAY-self.ONE_DAY, "$lt":self.DAY}, "status":{"$ne":"sold"}})
       for item in cursor:
         url = item['url']
+        self.logger.info("Process url:{}".format(url))
         yield Request(url=url,callback=self.parse_web,meta={'item':item})
 
   def parse_web(self, response):
