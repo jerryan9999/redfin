@@ -8,18 +8,45 @@ from datetime import datetime, date, timedelta, time
 import pymongo
 import csv
 
+
 class RedfinSpider(Spider):
   
   name = "RedfinSpider"
   urls = set()
 
+#  def start_requests(self):
+#    all_urls = []
+#    with open('urls.txt') as f:
+#      for line in f:
+#        all_urls.append(line.strip("\n"))
+#    for index,u in enumerate(all_urls):
+#      yield Request(url=u,callback=self.download_csv,meta={'sequence':index})
+
   def start_requests(self):
-    all_urls = []
-    with open('urls.txt') as f:
-      for line in f:
-        all_urls.append(line.strip("\n"))
-    for u in all_urls:
-      yield Request(url=u,callback=self.parse_csv)
+    config = self.crawler.settings.get('CONFIG')
+    self.client = pymongo.MongoClient(config['mongo_db_redfin']['hosts'])
+    with self.client:
+      self.db = self.client[config['mongo_db_redfin']['zipcode_database']]
+      self.cursor = self.db['us'].find({}, no_cursor_timeout=True)   # only collection named us
+      for index,document in enumerate(self.cursor):
+        zipcode = document['_id']
+        #if zipcode == '98327' or zipcode == '75231':# test lock
+        url = "https://www.redfin.com/zipcode/"+zipcode
+        yield Request(url=url,callback=self.parse_zipcode,meta={'sequence':index})
+
+  def parse_zipcode(self,response):
+    # parse url like 'https://www.redfin.com/zipcode/98327'
+    # get new request whose url links to csv
+    index = response.meta['sequence']
+    csv_url = response.xpath('//a[@id="download-and-save"]/@href').extract_first()
+    if csv_url:
+      url = 'https://www.redfin.com' + csv_url
+      return Request(url=url,callback=self.download_csv,meta={'sequence':index})
+
+  def download_csv(self,response):
+    index = response.meta['sequence']
+    with open("tmp/"+str(index)+'.csv','w') as f:
+      f.write(response.body.decode('utf-8'))
 
   def parse_csv(self,response):
     # every line of csv is a item

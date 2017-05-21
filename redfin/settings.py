@@ -22,15 +22,15 @@ USER_AGENT =  "Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, li
 ROBOTSTXT_OBEY = False
 
 # Configure maximum concurrent requests performed by Scrapy (default: 16)
-CONCURRENT_REQUESTS = 32
+CONCURRENT_REQUESTS = 96
 
 # Configure a delay for requests for the same website (default: 0)
 # See http://scrapy.readthedocs.org/en/latest/topics/settings.html#download-delay
 # See also autothrottle settings and docs
-DOWNLOAD_DELAY = 0.5
+#DOWNLOAD_DELAY = 1
 # The download delay setting will honor only one of:
-CONCURRENT_REQUESTS_PER_DOMAIN = 32
-CONCURRENT_REQUESTS_PER_IP = 32
+CONCURRENT_REQUESTS_PER_DOMAIN = 96
+CONCURRENT_REQUESTS_PER_IP = 1
 
 # Disable cookies (enabled by default)
 COOKIES_ENABLED = False
@@ -39,10 +39,14 @@ COOKIES_ENABLED = False
 #TELNETCONSOLE_ENABLED = False
 
 # Override the default request headers:
-DEFAULT_REQUEST_HEADERS = {
-   'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
-   'Accept-Language': 'en',
-}
+#DEFAULT_REQUEST_HEADERS = {
+#   'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
+#   'Accept-Language': 'en',
+#   'Connectin': 'keep-alive',
+#   'Host': 'www.redfin.com',
+#   'Accept-Encoding':'gzip, deflate, sdch, br'#
+
+#}
 
 # Download timeout value
 DOWNLOAD_TIMEOUT = 60      # default timeout is 3mins(180s)
@@ -54,14 +58,15 @@ DOWNLOAD_TIMEOUT = 60      # default timeout is 3mins(180s)
 #}
 
 LOGSTATS_INTERVAL = 60.0
-IPPOOLSTATS_INTERVAL = 600.0
+IPPOOLSTATS_INTERVAL = 180.0
 
 # Enable or disable downloader middlewares
 # See http://scrapy.readthedocs.org/en/latest/topics/downloader-middleware.html
 DOWNLOADER_MIDDLEWARES = {
-  'scrapy.downloadermiddlewares.httpproxy.HttpProxyMiddleware':None,
+  #'scrapy.downloadermiddlewares.httpproxy.HttpProxyMiddleware':None,
   'redfin.downloadermiddlewares.rotate_useragent.RotateUserAgentMiddleware':530,
-  'redfin.downloadermiddlewares.rotateproxy.TopProxyMiddleware':760
+  'redfin.downloadermiddlewares.rotateproxy.TopProxyMiddleware':760,
+  'scrapy.downloadermiddlewares.httpcompression.HttpCompressionMiddleware': 790,
 }
 
 # Enable or disable extensions
@@ -108,7 +113,7 @@ RETRY_PRIORITY_ADJUST = -1
 
 # Logging 
 import time
-LOG_LEVEL = 'INFO'   # default: 'DEBUG'
+LOG_LEVEL = 'DEBUG'   # default: 'DEBUG'
 LOG_FILE = "logs/scrapy_%s_%s.log"%(BOT_NAME, int(time.time()))
 
 import yaml

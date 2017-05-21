@@ -45,6 +45,8 @@ class RedfinRoomPipeline(object):
       }
       collection.update_one({'mls':item['mls'], 'zipcode':item['zipcode']}, {'$set': update, '$push':{'history':history}})
 
+    return item
+
   def close_spider(self, spider):
     self.client.close()
 
