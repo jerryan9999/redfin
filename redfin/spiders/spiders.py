@@ -22,7 +22,7 @@ class RedfinSpider(Spider):
       self.cursor = self.db['us'].find({}, no_cursor_timeout=True)   # only collection named us
       for index,document in enumerate(self.cursor):
         zipcode = document['_id']
-        #if zipcode == '98327' or zipcode == '75231':# test lock
+        #if zipcode == '92203':
         url = "https://www.redfin.com/zipcode/"+zipcode
         yield Request(url=url,callback=self.parse_zipcode,meta={'sequence':index})
 
@@ -104,13 +104,14 @@ class RedfinSpiderdb(Spider):
 
   def parse_web(self, response):
     item = response.meta['item']
-    status = response.xpath('//span[@class="HomeBottomStats status-container"]/span/span[2]/div/span/text()').extract_first()
+    status = response.xpath('//span[@class="HomeBottomStats status-container"]/span/span[2]/div/span/text()').extract_first() 
+              or response.xpath('//span[@class="HomeBottomStats status-container"]/span/span[2]/div/span/text()').extract_first() 
     if status and 'sold' in status.lower():
       item['status'] = 'sold'
-      item['sold_date'] = self.DAY
+      item['sold_date'] = response.xpath('//div[contains(@class,"home-sash-container large")]/div/div/text()').extract_first()
     else:
       item['status'] = status
-    item['price'] = response.xpath('//div[contains(@class,"HomeMainStats home-info")]/div/div/div/span[2]/text()').extract_first()
+    item['price'] = response.xpath('//div[contains(@class,"HomeMainStats home-info")]/div[1]/div[1]/text()').extract_first()
     item['last_update'] = datetime.combine(date.today(), time(0))
     return item
 
