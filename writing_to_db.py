@@ -10,19 +10,15 @@ with open("config.yml") as f:
 
 redfin = (config['mongo_db_redfin']['hosts'],config['mongo_db_redfin']['room_database'])
 
-class mongo_database():
-  def __init__(self, config):
-    self.client = None
-    self.config = config
-  def __enter__(self):
-    host,dbName = self.config
-    self.client = pymongo.MongoClient(
-      host,
-      27017
-    )
-    return self.client
-  def __exit__(self, *args):
-    self.client.close()
+client = pymongo.MongoClient(redfin[0])
+db = client[redfin[1]]
+collection = db["Rooms"]
+
+cursor = collection.find(modifiers={"snapshot":True})
+cursor.batch_size(1000)
+
+bulk = collection.initialize_unordered_bulk_op()
+counter = 0
 
 def parse_csv(response):
   # every line of csv is a item
@@ -67,36 +63,34 @@ def parse_csv(response):
           yield item
 
 def process_item(item):
-  with mongo_database(redfin) as db:
-    collection = db[config['mongo_db_redfin']['room_database']]['Rooms']
-    # db.Rooms.creatIndex({'mls':1,'zipcode':1}) 记得创建索引
-    count = collection.find({'mls':item['mls'], 'zipcode':item['zipcode']}).count()
-    if count == 0:
-      collection.insert(item)
-    else:
-      update = {
-                'price':item['price'],
-                'status':item['status'], 
-                'days_on_market':item['days_on_market'],
-                'sold_date':item['sold_date'],
-                'last_update':item['last_update']
-      }
-      history = {
-                'date':datetime.today(),
-                'price':item['price'],
-                'status':item['status']
-      }
-      collection.update_one({'mls':item['mls'], 'zipcode':item['zipcode']}, {'$set': update, '$push':{'history':history}})
+  global bulk,counter
+  # db.Rooms.creatIndex({'mls':1,'zipcode':1}) 记得创建索引
+  update = {k:v for k,v in item.items() if k!='history'}
+  history = {
+            'date':datetime.today(),
+            'price':item['price'],
+            'status':item['status']
+  }
+  bulk.find({'mls':item['mls'], 'zipcode':item['zipcode']}).upsert().update_one({'$set': update, '$push':{'history':history}})
+
+  counter+=1
+  if counter % 1000 ==0:
+    print("bulk updating #"+str(counter))
+    bulk.execute()
+    bulk = collection.initialize_unordered_bulk_op()
 
 if __name__ == '__main__':
   # get all the files to a list
   files = ['tmp/'+f for f in os.listdir("tmp") if f.endswith('csv')]
-  counter = 0
   processed_urls = set()
 
   for file in files:
     with open(file) as f:
       for item in parse_csv(f.read()):
         process_item(item)
-        counter+=1
-        print(counter)
+
+  if counter%500!=0:
+    print("bulk updating # "+ str(counter))
+    bulk.execute()
+
+  client.close()
