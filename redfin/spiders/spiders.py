@@ -104,7 +104,7 @@ class RedfinSpiderdb(Spider):
 
   def parse_web(self, response):
     item = response.meta['item']
-    status = response.xpath('//span[@class="HomeBottomStats status-container"]/span/span[2]/div/span/text()').extract_first() 
+    status = response.xpath('//span[@class="HomeBottomStats status-container"]/span/span[2]/div/span/text()').extract_first() \
               or response.xpath('//span[@class="HomeBottomStats status-container"]/span/span[2]/div/span/text()').extract_first() 
     if status and 'sold' in status.lower():
       item['status'] = 'sold'
