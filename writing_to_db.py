@@ -89,7 +89,7 @@ if __name__ == '__main__':
       for item in parse_csv(f.read()):
         process_item(item)
 
-  if counter%500!=0:
+  if counter%1000!=0:
     print("bulk updating # "+ str(counter))
     bulk.execute()
 
