@@ -63,7 +63,7 @@ IPPOOLSTATS_INTERVAL = 180.0
 # Enable or disable downloader middlewares
 # See http://scrapy.readthedocs.org/en/latest/topics/downloader-middleware.html
 DOWNLOADER_MIDDLEWARES = {
-  #'scrapy.downloadermiddlewares.httpproxy.HttpProxyMiddleware':None,
+  'scrapy.downloadermiddlewares.httpproxy.HttpProxyMiddleware':None,
   'redfin.downloadermiddlewares.rotate_useragent.RotateUserAgentMiddleware':530,
   'redfin.downloadermiddlewares.rotateproxy.TopProxyMiddleware':760,
   'scrapy.downloadermiddlewares.httpcompression.HttpCompressionMiddleware': 790,
