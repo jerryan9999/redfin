@@ -22,7 +22,7 @@ class RedfinSpider(Spider):
       self.cursor = self.db['us'].find({}, no_cursor_timeout=True)   # only collection named us
       for index,document in enumerate(self.cursor):
         zipcode = document['_id']
-        #if zipcode == '92203':
+        #if zipcode == '94502':
         url = "https://www.redfin.com/zipcode/"+zipcode
         yield Request(url=url,callback=self.parse_zipcode,meta={'sequence':index})
 
