@@ -7,7 +7,7 @@ import yaml
 from datetime import datetime, date, timedelta, time
 from bson.objectid import ObjectId
 
-utils_path = os.path.dirname(os.getcwd())+"/utils/"    # TODO: relative import within package
+utils_path = os.getcwd()+"/utils/"    # TODO: relative import within package
 sys.path.append(utils_path)
 
 import mail

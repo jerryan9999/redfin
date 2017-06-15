@@ -7,3 +7,9 @@ mongo_db_proxy:
   hosts: localhost
   proxy_database: ProxyPool
   proxy_collection: IPs
+
+email:
+  email_account: 'data@wehome.io'
+  email_password: '************'
+  to_addr: 
+    - 'jerry.an@wehome.io'
