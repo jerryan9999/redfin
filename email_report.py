@@ -16,6 +16,10 @@ with open("config.yml") as f:
   config = yaml.load(f)
 
 DAY = datetime.combine(date.today(), time(0))
+#DAY = datetime(2017,5,12)
+next_DAY = DAY+ timedelta(days=1)
+DAT_objectid = ObjectId.from_datetime(DAY)
+next_DAT_objectid = ObjectId.from_datetime(next_DAY)
 
 def get_daily_report():
   states = ('CA', 'TX', 'NJ', 'NY', 'FL', 'MA', 'WA', 'OR', 'DC', 'VA', 'MD')
@@ -25,8 +29,8 @@ def get_daily_report():
     tables = []
     for state in states:
       alive = collection.find({'state':state, 'status':{'$ne':'sold'}}).count()
-      new_online = collection.find({'state':state, 'initial_date':{'$gte':DAY}}).count()
-      sold = collection.find({'state':state, 'history.date':{'$gte':DAY}, 'status':'sold'}).count()
+      new_online = collection.find({'state':state,'_id':{'$lt' : next_DAT_objectid, '$gte' : DAT_objectid} }).count()
+      sold = collection.find({'state':state, 'last_update':{'$gte':DAY,'$lt':next_DAY}, 'status':'sold'}).count()
 
       row = []
       row.append(state)
