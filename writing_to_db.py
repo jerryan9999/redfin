@@ -3,6 +3,7 @@ import csv
 from datetime import datetime, date, timedelta, time
 import pymongo
 import yaml
+import re
 
 
 with open("config.yml") as f:
@@ -47,6 +48,7 @@ def parse_csv(response):
         item['hoa_month'] = fields[16]
         item['status'] = fields[17]
         item['url'] = fields[20]
+        item['redfin_id'] = re.search(r'home/([0-9]+)',item['url']).group(1)
         item['source'] = fields[21]
         item['mls'] = fields[22]
         item['latitude'] = fields[25]
@@ -71,7 +73,7 @@ def process_item(item):
             'price':item['price'],
             'status':item['status']
   }
-  bulk.find({'mls':item['mls'], 'zipcode':item['zipcode']}).upsert().update_one({'$set': update, '$push':{'history':history}})
+  bulk.find({'redfin_id':item['redfin_id']}).upsert().update_one({'$set': update, '$push':{'history':history}})
 
   counter+=1
   if counter % 1000 ==0:

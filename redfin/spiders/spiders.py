@@ -7,6 +7,7 @@ from redfin.items import RedfinItem
 from datetime import datetime, date, timedelta, time
 import pymongo
 import csv
+import re
 
 
 class RedfinSpider(Spider):
@@ -67,6 +68,7 @@ class RedfinSpider(Spider):
           item['hoa_month'] = fields[16]
           item['status'] = fields[17]
           item['url'] = fields[20]
+          item['redfin_id'] = re.search(r'home/([0-9]+)',item['url']).group(1)
           item['source'] = fields[21]
           item['mls'] = fields[22]
           item['latitude'] = fields[25]
@@ -96,7 +98,7 @@ class RedfinSpiderdb(Spider):
     with self.client:
       self.db = self.client[config['mongo_db_redfin']['room_database']]
       self.collection = self.db['Rooms']
-      cursor = self.collection.find({"last_update":{"$nin":[self.DAY]}, "history.date":{"$gte":self.DAY-self.ONE_DAY, "$lt":self.DAY}, "status":{"$ne":"sold"}})
+      cursor = self.collection.find({"last_update":{"$nin":[self.DAY]}, "history.date":{"$gte":self.DAY-self.ONE_DAY, "$lt":self.DAY}, "status":{"$ne":"sold"}},{'url':1,'redfin_id':1})
       for item in cursor:
         url = item['url']
         self.logger.info("Process url:{}".format(url))
@@ -104,8 +106,8 @@ class RedfinSpiderdb(Spider):
 
   def parse_web(self, response):
     item = response.meta['item']
-    status = response.xpath('//span[@class="HomeBottomStats status-container"]/span/span[2]/div/span/text()').extract_first() \
-              or response.xpath('//span[@class="HomeBottomStats status-container"]/span/span[2]/text()').extract_first()
+    status = response.xpath('//span[@class="status-container"]/span/span[2]/div/span/text()').extract_first() \
+              or response.xpath('//span[@class="status-container"]/span/span[2]/text()').extract_first()
     if status and 'sold' in status.lower():
       item['status'] = 'sold'
       item['sold_date'] = response.xpath('//div[contains(@class,"home-sash-container large")]/div/div/text()').extract_first()

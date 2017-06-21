@@ -12,6 +12,7 @@ class RedfinItem(scrapy.Item):
     # define the fields for your item here like:
     # name = scrapy.Field()
     _id = scrapy.Field()
+    redfin_id = scrapy.Field()
     sale_listing = scrapy.Field()    
     sold_date = scrapy.Field()       
     property_type = scrapy.Field()   

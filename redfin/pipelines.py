@@ -27,7 +27,8 @@ class RedfinRoomPipeline(object):
 
   def process_item(self, item, spider):
     collection = self.db[self.collection]
-    count = collection.find({'mls':item['mls'], 'zipcode':item['zipcode']}).count()
+    #count = collection.find({'mls':item['mls'], 'zipcode':item['zipcode']}).count()
+    count = collection.find({'redfin_id':item['redfin_id']}).count()
     if count == 0:
       collection.insert(item)
     else:
