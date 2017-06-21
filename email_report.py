@@ -28,7 +28,7 @@ def get_daily_report():
     collection = client[config['mongo_db_redfin']['room_database']]['Rooms']
     tables = []
     for state in states:
-      alive = collection.find({'state':state, 'status':{'$ne':'sold'}}).count()
+      alive = collection.find({'state':state, 'status':'Active'}).count()
       new_online = collection.find({'state':state,'_id':{'$lt' : next_DAT_objectid, '$gte' : DAT_objectid} }).count()
       sold = collection.find({'state':state, 'last_update':{'$gte':DAY,'$lt':next_DAY}, 'status':'sold'}).count()
 
