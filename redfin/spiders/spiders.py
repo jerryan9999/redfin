@@ -113,6 +113,7 @@ class RedfinSpiderdb(Spider):
       item['sold_date'] = response.xpath('//div[contains(@class,"home-sash-container large")]/div/div/text()').extract_first()
     else:
       item['status'] = status
+    item['days_on_market'] = response.xpath('//div[@class="HomeBottomStats"]/div[1]/div[1]/span[3]/span[2]/text()').re(r'[0-9]+')
     item['price'] = response.xpath('//div[contains(@class,"HomeMainStats home-info")]/div[1]/div[1]/text()').extract_first() \
                or response.xpath('//div[contains(@class,"HomeMainStats home-info")]/div/div/div/span[2]/text()').extract_first()
     item['last_update'] = datetime.combine(date.today(), time(0))
