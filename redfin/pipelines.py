@@ -35,16 +35,16 @@ class RedfinRoomPipeline(object):
       update = {
                 'price':item['price'],
                 'status':item['status'], 
-                'days_on_market':item['days_on_market'],
-                'sold_date':item['sold_date'],
-                'last_update':item['last_update']
+                'days_on_market':item.get('days_on_market'),
+                'sold_date':item.get('sold_date'),
+                'last_update':item.get('last_update')
       }
       history = {
                 'date':datetime.today(),
                 'price':item['price'],
                 'status':item['status']
       }
-      collection.update_one({'mls':item['mls'], 'zipcode':item['zipcode']}, {'$set': update, '$push':{'history':history}})
+      collection.update_one({'redfin_id':item['redfin_id']}, {'$set': update, '$push':{'history':history}})
 
     return item
 
