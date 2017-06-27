@@ -87,7 +87,7 @@ if __name__ == '__main__':
   processed_urls = set()
 
   for file in files:
-    with open(file) as f:
+    with open(file,'r',encoding='utf-8') as f:
       for item in parse_csv(f.read()):
         process_item(item)
 
