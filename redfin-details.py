@@ -111,7 +111,6 @@ class Redfin:
       pr = self.proxy.get()
       self.ip_change += 1
       self.proxies = {'http': pr, 'https': pr}
-      print self.proxies
     except:
       time.sleep(60)
   def get_proxy(self):
@@ -194,7 +193,6 @@ resultk=Queue()
 with conn_mongo:
   db = conn_mongo[config_file['mongo_db_redfin']['room_database']]
   for each in db['Rooms'].find({'last_update':{'$gte':tm}}):
-    print each
     url = each['url']
     id = each['_id']
     source.put([url, id])
