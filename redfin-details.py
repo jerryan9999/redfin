@@ -106,11 +106,12 @@ class Redfin:
     self.sche = Queue()
     time.sleep(1)
     self.change()
+    print 'Redfin Class'
   def change(self):
     try:
       pr = self.proxy.get()
       self.ip_change += 1
-      self.proxies = {'http': pr, 'https': pr}
+      self.proxies = {'http': pr, 'https': pr,}
     except:
       time.sleep(60)
   def get_proxy(self):
@@ -124,6 +125,7 @@ class Redfin:
         with conn_mongo:
           db = conn_mongo[config_file['mongo_db_proxy']['proxy_database']][config_file['mongo_db_proxy']['proxy_collection']]
           for each in db.find():
+            print each
             self.proxy.put('http://'+each['_id'])
 
 
@@ -131,11 +133,13 @@ class Redfin:
     threading.Thread(target=self.get_proxy).start()
 
   def get_html(self, url):
+    url=url.replace('http://','https://')
     headers = {'user-agent':
                  'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_12_2) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/62.0.3202.89 Safari/537.36'}
     # url = 'https://www.redfin.com/WA/Edgewood/3113-87th-Avenue-Ct-E-98371/home/2911874'
     for x in range(500000):
       try:
+        print url
         p = requests.get(url,headers=headers,timeout=10,proxies=self.proxies,verify=False)
         if p.status_code == 500:
           self.success += 1
@@ -145,7 +149,11 @@ class Redfin:
         if 'It looks like our usage analysis algorithms' in p.text:
           raise Exception('Change!')
         self.success += 1
+
+        #print p.text
+
         break
+
       except Exception as err:
         try:
           #print p.text
@@ -171,7 +179,6 @@ def sche():
       'remark':get_remark(html),
       'property_history':get_history(html)
       },url])
-      #print t.success,t.ip_change
     except:
       #print url
       pass
@@ -196,6 +203,7 @@ with conn_mongo:
     url = each['url']
     id = each['_id']
     source.put([url, id])
+  print 'Mongo GET'
 threading.Thread(target=sche).start()
 threading.Thread(target=tomongo).start()
 
