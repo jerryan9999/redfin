@@ -45,7 +45,7 @@ def get_daily_report():
 daily_report = get_daily_report()
 
 # Slack Notification
-daily_slack = daily_report
+daily_slack = [i for i in daily_report]
 daily_slack.append(['Total', sum([i[1] for i in daily_slack])
                             , sum([i[2] for i in daily_slack])
                             , sum([i[3] for i in daily_slack])
