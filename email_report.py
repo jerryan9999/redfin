@@ -54,14 +54,11 @@ title = ['State', 'Alive', 'New', 'Sold']
 daily_slack.insert(0, title)
 text = ''
 text += '```\n'
-text += '        Redfin     %s \n' % str(datetime.now())[:19]
-text += '---------------------------------------------\n'
+text += 'Redfin %s(UTC)\n' % str(datetime.now())[:19]
+text += '---------------------------------\n'
 for row in daily_slack:
-  text +=  '| '
-  for i in row:
-    text += '%8s | ' % str(i)
-  text += '\n'
-text +=  '--------------------------------------------\n'
+  text +=  '|%5s|%9s|%7s|%7s|\n' % (row[0], row[1], row[2], row[3])
+text += '---------------------------------\n'
 text += '```'
 slack_url = config['slack']['url']
 slack_headers = {'Content-type': 'application/json'}
