@@ -27,6 +27,23 @@ counter = 0
 
 def parse_csv(response):
   # every line of csv is a item
+
+  # create a mapping for Redfin property_type and Zillow property_type
+
+  property_mappings = {
+
+  "Condo/Co-op" : "Condo",
+  "Multi-Family" : "Multi Family",
+  "Residential" : "Single Family",
+  "Townhouse" : "Townhouse",
+  "Single Family Residential" : "Single Family",
+  "Mobile/Manufactured Home" : "Mobile",
+  "Multi-Family (2-4 Unit)" : "Multi Family",
+  "Vacant Land" : "Lot"
+
+  }
+
+
   items_strings = response.split('\n')
   for index, line in enumerate(items_strings):
     if index != 0 and line:
@@ -35,7 +52,8 @@ def parse_csv(response):
         item = dict()
         item['sale_listing'] = fields[0]
         item['sold_date'] = fields[1]
-        item['property_type'] = fields[2]
+        print("FI", fields[2])
+        item['property_type'] = property_mappings[fields[2]]
         item['address'] = fields[3]
         item['city'] = fields[4]
         item['state'] = fields[5]
