@@ -39,7 +39,8 @@ def parse_csv(response):
   "Single Family Residential" : "Single Family",
   "Mobile/Manufactured Home" : "Mobile",
   "Multi-Family (2-4 Unit)" : "Multi Family",
-  "Vacant Land" : "Lot"
+  "Vacant Land" : "Lot",
+  "Multi-Family (5+ Unit) " : "Multi Family"
 
   }
 
