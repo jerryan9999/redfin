@@ -1,9 +1,13 @@
+# encoding: -utf-8
 import os
 import csv
 from datetime import datetime, date, timedelta, time
 import pymongo
 import yaml
 import re
+from utils.mail import send_email
+import requests
+import json
 
 
 with open("config.yml") as f:
@@ -24,7 +28,7 @@ counter = 0
 def parse_csv(response):
   # every line of csv is a item
   items_strings = response.split('\n')
-  for index, line in enumerate(items_strings):      
+  for index, line in enumerate(items_strings):
     if index != 0 and line:
       fields = next(csv.reader(line.splitlines(), skipinitialspace=True))
       if len(fields) == 27:
@@ -62,7 +66,57 @@ def parse_csv(response):
         item['last_update'] = datetime.combine(date.today(), time(0))
         if item['url'] not in processed_urls:
           processed_urls.add(item['url'])
+          business_interested_property(item)
           yield item
+
+def business_interested_property(item):
+  # 上线两天以内的新房
+  # score大于一定值
+  recent_days = 1
+  threshold_score = 88
+  global new_property
+  if item['days_on_market'] and int(item['days_on_market'])<=recent_days and item['status']=="Active":
+    item = attach_score(item)
+    if item['score'] >= threshold_score:
+      print("Got better property")
+      new_property.append(item)
+
+def attach_score(item):
+    # nearby
+    # POST http://test.fanglimei.cn/api/rent
+    payload = json.dumps({
+                "home_id": item['redfin_id'],
+                "roomtype": "Condo",
+                "listing_price": "$"+item['price'],
+                "beds": int(item['beds']),
+                "yearbuilt": int(item['year_build']),
+                "size": float(item['square_feet']),
+                "addr": item['address'],
+                "baths": float(item['baths']),
+                "centroid": "{},{}".format(item['latitude'],item['longitude']),
+                "source_name": "redfin"
+            })
+    print(payload)
+    try:
+        response = requests.post(
+            url="http://test.fanglimei.cn/api/rent",
+            headers={
+                "Authorization": "eyJhbGciOiJIUzI1NiIsImV4cCI6NDY3NTMxMTI0OCwiaWF0IjoxNTIxNzExMjQ4fQ.eyJyb2xlIjowLCJpZCI6MTEsIm5hbWUiOiJjaHJvbWUifQ.lv2xvvkaWbLxagIydK6k3TC5EVmTCKRF_gcqzEhdnPE",
+                "Content-Type": "application/json; charset=utf-8",
+            },
+            data=payload
+        )
+        print(response.text)
+        if response.status_code==200:
+          result = response.json()
+
+          item['score'] = result['Score']
+          item['rent'] = result['Suggested_Rent']
+          item['appre'] = result['Appr']
+          item['ratio'] = result['Ratio']
+    except requests.exceptions.RequestException:
+        print('HTTP Request failed')
+    return item
 
 def process_item(item):
   global bulk,counter
@@ -83,6 +137,7 @@ def process_item(item):
 
 if __name__ == '__main__':
   # get all the files to a list
+  new_property = []
   files = ['tmp/'+f for f in os.listdir("tmp") if f.endswith('csv')]
   processed_urls = set()
 
@@ -95,4 +150,14 @@ if __name__ == '__main__':
     print("bulk updating # "+ str(counter))
     bulk.execute()
 
+  # Email Msg Content
+  sta =['<!DOCTYPE html><html><body><table align="center"><tr><th style="width:80px">City</th><th style="width:80px">Addr</th><th style="width:80px">Type</th><th style="width:40px">Price</th><th style="width:40px">Bed</th><th style="width:40px">Bath</th><th style="width:40px">Sqrt</th><th style="width:40px">YearBuilt</th><th style="width:40px">Onmarket</th><th style="width:80px">Url</th></tr>']
+  for p in new_property:
+    sta.append("<tr><td align='center'>{}</td><td align='center'>{}</td><td align='center'>{}</td><td align='center'>{}</td><td align='center'>{}</td><td align='center'>{}</td><td align='center'>{}</td><td align='center'>{}</td><td align='center'>{}</td><td align='center'>{}</td></tr>".format(p["city"],p['address'],p['property_type'],p['price'],p['beds'],p['baths'],p['square_feet'],p['year_build'],p['days_on_market'],p['url']))
+  sta.append("</table></body></html>")
+  x = "".join(sta)
+
+  content = "{}".format(x)
+
+  send_email(content=content, subject="New Coming Property")
   client.close()
