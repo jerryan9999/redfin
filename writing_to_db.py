@@ -62,6 +62,8 @@ def parse_csv(response):
         item['state'] = fields[5]
         item['zipcode'] = fields[6]
         item['price'] = fields[7]
+        if not fields[8].isdigit():
+          continue
         item['beds'] = fields[8]
         item['baths'] = fields[9]
         item['location'] = fields[10]
