@@ -62,14 +62,19 @@ def parse_csv(response):
         item['state'] = fields[5]
         item['zipcode'] = fields[6]
         item['price'] = fields[7]
-        if not fields[8].isdigit():
-          continue
         item['beds'] = fields[8]
         item['baths'] = fields[9]
         item['location'] = fields[10]
         item['square_feet'] = fields[11]
         item['lot_size'] = fields[12]
         item['year_build'] = fields[13]
+        try:
+          float(item['baths'])
+          int(item['beds'])
+          float(item['square_feet'])
+          int(item['year_build'])
+        except ValueError:
+          continue
         item['days_on_market'] = fields[14]
         item['square_feet_price'] = fields[15]
         item['hoa_month'] = fields[16]
@@ -112,8 +117,8 @@ def attach_score(item):
                 "roomtype": item['property_type'],
                 "listing_price": "$"+item['price'],
                 "beds": int(item['beds']),
-                "yearbuilt": int(item['year_build']) if item.get('year_build') else None,
-                "size": item['square_feet'],
+                "yearbuilt": int(item['year_build']),
+                "size": float(item['square_feet']),
                 "addr": item['address'],
                 "baths": float(item['baths']),
                 "centroid": "{},{}".format(item['latitude'],item['longitude']),
