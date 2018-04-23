@@ -54,6 +54,8 @@ def parse_csv(response):
         item['sale_listing'] = fields[0]
         item['sold_date'] = fields[1]
         print("FI", fields[2])
+        if fields[2] and fields[2] not in property_mappings.keys():
+          continue
         item['property_type'] = property_mappings[fields[2]]
         item['address'] = fields[3]
         item['city'] = fields[4]
