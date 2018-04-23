@@ -110,7 +110,7 @@ def attach_score(item):
                 "roomtype": "Condo",
                 "listing_price": "$"+item['price'],
                 "beds": int(item['beds']),
-                "yearbuilt": int(item['year_build']),
+                "yearbuilt": int(item['year_build']) if item.get('year_build') else None,
                 "size": float(item['square_feet']),
                 "addr": item['address'],
                 "baths": float(item['baths']),
