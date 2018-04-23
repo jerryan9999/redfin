@@ -107,11 +107,11 @@ def attach_score(item):
     # POST http://test.fanglimei.cn/api/rent
     payload = json.dumps({
                 "home_id": item['redfin_id'],
-                "roomtype": "Condo",
+                "roomtype": item['property_type'],
                 "listing_price": "$"+item['price'],
                 "beds": int(item['beds']),
                 "yearbuilt": int(item['year_build']) if item.get('year_build') else None,
-                "size": float(item['square_feet']),
+                "size": item['square_feet'],
                 "addr": item['address'],
                 "baths": float(item['baths']),
                 "centroid": "{},{}".format(item['latitude'],item['longitude']),
