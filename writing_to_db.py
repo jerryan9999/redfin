@@ -100,10 +100,10 @@ def parse_csv(response):
 def business_interested_property(item):
   # 上线两天以内的新房
   # score大于一定值
-  recent_days = 1
-  threshold_score = 88
+  recent_days = 3
+  threshold_score = 83
   global new_property
-  if item['days_on_market'] and int(item['days_on_market'])<=recent_days and item['status']=="Active":
+  if item['days_on_market'] and int(item['days_on_market'])<=recent_days and item['status']=="Active" and item['WA']:
     item = attach_score(item)
     if item.get('score') and item['score'] >= threshold_score:
       print("Got better property")
