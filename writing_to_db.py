@@ -105,7 +105,7 @@ def business_interested_property(item):
   global new_property
   if item['days_on_market'] and int(item['days_on_market'])<=recent_days and item['status']=="Active" and item.get('state') and item['state']=="WA":
     item = attach_score(item)
-    if item.get('score') and item['score'] >= threshold_score:
+    if item.get('score') and int(item['score']) >= threshold_score:
       print("Got better property")
       new_property.append(item)
 
