@@ -53,7 +53,6 @@ def parse_csv(response):
         item = dict()
         item['sale_listing'] = fields[0]
         item['sold_date'] = fields[1]
-        print("FI", fields[2])
         if fields[2] and fields[2] not in property_mappings.keys():
           continue
         item['property_type'] = property_mappings[fields[2]]
@@ -105,7 +104,7 @@ def business_interested_property(item):
   global new_property
   if item['days_on_market'] and int(item['days_on_market'])<=recent_days and item['status']=="Active" and item.get('state') and item['state']=="WA":
     item = attach_score(item)
-    if item.get('score') and int(item['score']) >= threshold_score:
+    if item.get('score') and item['score']!="No Data" and int(item['score']) >= threshold_score:
       print("Got better property")
       new_property.append(item)
 
@@ -124,7 +123,7 @@ def attach_score(item):
                 "centroid": "{},{}".format(item['latitude'],item['longitude']),
                 "source_name": "redfin"
             })
-    print(payload)
+    #print(payload)
     try:
         response = requests.post(
             url="http://test.fanglimei.cn/api/rent",
