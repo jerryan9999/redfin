@@ -116,6 +116,7 @@ def attach_score(item):
                 "roomtype": item['property_type'],
                 "listing_price": "$"+item['price'],
                 "city": item['city'],
+                "zipcode": item['zipcode'],
                 "beds": int(item['beds']),
                 "yearbuilt": int(item['year_build']),
                 "size": float(item['square_feet']),
