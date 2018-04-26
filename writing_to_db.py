@@ -115,6 +115,7 @@ def attach_score(item):
                 "home_id": item['redfin_id'],
                 "roomtype": item['property_type'],
                 "listing_price": "$"+item['price'],
+                "city": item['city'],
                 "beds": int(item['beds']),
                 "yearbuilt": int(item['year_build']),
                 "size": float(item['square_feet']),
