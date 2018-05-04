@@ -143,6 +143,7 @@ def attach_score(item):
           item['rent'] = result['Suggested_Rent']
           item['appre'] = result['Appr']
           item['ratio'] = result['Ratio']
+          item['cap'] = result['Cap']
     except requests.exceptions.RequestException:
         print('HTTP Request failed')
     return item
@@ -175,15 +176,23 @@ if __name__ == '__main__':
       for item in parse_csv(f.read()):
         process_item(item)
 
+  #print("NEW", new_property[0])
+  #print("LEN", len(new_property))
   if counter%1000!=0:
-    print("bulk updating # "+ str(counter))
+    #print("bulk updating # "+ str(counter))
     bulk.execute()
 
   # Email Msg Content
-  sta =['<!DOCTYPE html><html><body><table align="center"><tr><th style="width:80px">City</th><th style="width:80px">Addr</th><th style="width:80px">Type</th><th style="width:40px">Price</th><th style="width:40px">Bed</th><th style="width:40px">Bath</th><th style="width:40px">Sqrt</th><th style="width:40px">YearBuilt</th><th style="width:40px">Onmarket</th><th style="width:80px">Url</th></tr>']
+  sta =['<!DOCTYPE html><html><body><table align="center"><tr><th style="width:80px">City</th><th style="width:80px">Addr</th><th style="width:80px">Type</th><th style="width:40px">Price</th><th style="width:40px">Bed</th><th style="width:40px">Bath</th><th style="width:40px">Sqrt</th><th style="width:40px">YearBuilt</th><th style="width:40px">Onmarket</th><th style="width:80px">Url</th><th style="width:40px">WeHomeScore</th> <th style="width:40px">WeHomeRent</th> <th style="width:40px">CapRate</th><th style="width:80px">Appreciation</th><th style="width:80px">CashReturn</th></tr>']
+
   for p in new_property:
-    sta.append("<tr><td align='center'>{}</td><td align='center'>{}</td><td align='center'>{}</td><td align='center'>{}</td><td align='center'>{}</td><td align='center'>{}</td><td align='center'>{}</td><td align='center'>{}</td><td align='center'>{}</td><td align='center'>{}</td></tr>".format(p["city"],p['address'],p['property_type'],p['price'],p['beds'],p['baths'],p['square_feet'],p['year_build'],p['days_on_market'],p['url']))
+    sta.append(
+    "<tr><td align='center'>{}</td><td align='center'>{}</td><td align='center'>{}</td><td align='center'>{}</td><td align='center'>{}</td><td align='center'>{}</td><td align='center'>{}</td><td align='center'>{}</td><td align='center'>{}</td><td align='center'>{}</td><td align='center'>{}</td><td align='center'>{}</td><td align='center'>{}</td><td aligh='center'>{}</td><td align='center'>{}</td></tr>".format(p["city"],p['address'],p['property_type'],p['price'],p['beds'],p['baths'],p['square_feet'],p['year_build'],p['days_on_market'],p['url'],p['score'],p['rent'],p['cap'],p['appre'],p['ratio'])
+
+    )
   sta.append("</table></body></html>")
+
+  #print("sta", len(sta))
   x = "".join(sta)
 
   content = "{}".format(x)
