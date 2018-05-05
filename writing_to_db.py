@@ -55,6 +55,8 @@ def parse_csv(response):
         item['sold_date'] = fields[1]
         if fields[2] and fields[2] not in property_mappings.keys():
           continue
+        if property_mappings[fields[2]] == 'Mobile':
+            continue
         item['property_type'] = property_mappings[fields[2]]
         item['address'] = fields[3]
         item['city'] = fields[4]
@@ -192,7 +194,6 @@ if __name__ == '__main__':
     )
   sta.append("</table></body></html>")
 
-  #print("sta", len(sta))
   x = "".join(sta)
 
   content = "{}".format(x)
