@@ -38,10 +38,10 @@ def get_daily_report():
       sold_state = collection.find({'state':state, 'last_update':{'$gte':DAY,'$lt':next_DAY}, 'status':'sold'}).count()
 
       row_state = []
-      row.append(state)
-      row.append(alive_state)
-      row.append(new_online_state)
-      row.append(sold_state)
+      row_state.append(state)
+      row_state.append(alive_state)
+      row_state.append(new_online_state)
+      row_state.append(sold_state)
       tables.append(row_state)
       # city data
     for city in cities:
@@ -51,10 +51,10 @@ def get_daily_report():
        sold_city = collection.find({'city':city, 'last_update':{'$gte':DAY,'$lt':next_DAY}, 'status':'sold'}).count()
 
        row_city = []
-       row.append(city)
-       row.append(alive_city)
-       row.append(new_online_city)
-       row.append(sold_city)
+       row_city.append(city)
+       row_city.append(alive_city)
+       row_city.append(new_online_city)
+       row_city.append(sold_city)
        tables.append(row_city)
 
   return tables
