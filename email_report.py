@@ -24,22 +24,39 @@ DAT_objectid = ObjectId.from_datetime(DAY)
 next_DAT_objectid = ObjectId.from_datetime(next_DAY)
 
 def get_daily_report():
+  # adding cities to show data
+  cities = ['Seattle', 'Fort Worth', 'Kissimmee', 'Atlanta', 'Dallas', 'Las Vegas', 'Orlando', 'Renton', 'San Francisco']
   states = ('CA', 'TX', 'NJ', 'NY', 'FL', 'MA', 'WA', 'OR', 'DC', 'VA', 'MD')
   client = pymongo.MongoClient(config['mongo_db_redfin']['hosts'])
+  # states daily data update
   with client:
     collection = client[config['mongo_db_redfin']['room_database']]['Rooms']
     tables = []
     for state in states:
-      alive = collection.find({'state':state, 'status':'Active'}).count()
-      new_online = collection.find({'state':state,'_id':{'$lt' : next_DAT_objectid, '$gte' : DAT_objectid} }).count()
-      sold = collection.find({'state':state, 'last_update':{'$gte':DAY,'$lt':next_DAY}, 'status':'sold'}).count()
+      alive_state = collection.find({'state':state, 'status':'Active'}).count()
+      new_online_state = collection.find({'state':state,'_id':{'$lt' : next_DAT_objectid, '$gte' : DAT_objectid} }).count()
+      sold_state = collection.find({'state':state, 'last_update':{'$gte':DAY,'$lt':next_DAY}, 'status':'sold'}).count()
 
-      row = []
+      row_state = []
       row.append(state)
-      row.append(alive)
-      row.append(new_online)
-      row.append(sold)
-      tables.append(row)
+      row.append(alive_state)
+      row.append(new_online_state)
+      row.append(sold_state)
+      tables.append(row_state)
+      # city data
+    for city in cities:
+
+       alive_city = collection.find({'city':city, 'status':'Active'}).count()
+       new_online_city = collection.find({'city':city,'_id':{'$lt' : next_DAT_objectid, '$gte' : DAT_objectid} }).count()
+       sold_city = collection.find({'city':city, 'last_update':{'$gte':DAY,'$lt':next_DAY}, 'status':'sold'}).count()
+
+       row_city = []
+       row.append(city)
+       row.append(alive_city)
+       row.append(new_online_city)
+       row.append(sold_city)
+       tables.append(row_city)
+
   return tables
 
 daily_report = get_daily_report()
