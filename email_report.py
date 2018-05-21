@@ -67,7 +67,7 @@ daily_slack.append(['Total', sum([i[1] for i in daily_slack])
                             , sum([i[2] for i in daily_slack])
                             , sum([i[3] for i in daily_slack])
                      ])
-title = ['State', 'Alive', 'New', 'Sold']
+title = ['Location', 'Alive', 'New', 'Sold']
 daily_slack.insert(0, title)
 text = ''
 text += '```\n'
