@@ -104,7 +104,8 @@ def business_interested_property(item):
   recent_days = 3
   threshold_score = 83
   global new_property
-  if item['days_on_market'] and int(item['days_on_market'])<=recent_days and item['status']=="Active" and item.get('state') and item['state']=="WA":
+  # 感兴趣的房源筛选
+  if item['days_on_market'] and int(item['days_on_market'])<=recent_days and item['status']=="Active" and item.get('state') and (item['state']=="WA" or item['city'] in ['Orlando','Atlanta']):
     item = attach_score(item)
     if item.get('score') and item['score']!="No Data" and int(item['score']) >= threshold_score:
       print("Got better property")
