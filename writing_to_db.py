@@ -8,6 +8,7 @@ import re
 from utils.mail import send_email
 import requests
 import json
+from operator import itemgetter
 
 
 with open("config.yml") as f:
@@ -102,10 +103,10 @@ def business_interested_property(item):
   # 上线两天以内的新房
   # score大于一定值
   recent_days = 3
-  threshold_score = 83
+  threshold_score = 80
   global new_property
   # 感兴趣的房源筛选
-  if item['days_on_market'] and int(item['days_on_market'])<=recent_days and item['status']=="Active" and item.get('state') and (item['state']=="WA" or item['city'] in ['Orlando','Atlanta']):
+  if item['days_on_market'] and int(item['days_on_market'])<=recent_days and item['status']=="Active" and item['city'] in ['Orlando','Atlanta','Seattle','Bellevue','Bothell','Tacoma','Renton','Redmond']:
     item = attach_score(item)
     if item.get('score') and item['score']!="No Data" and int(item['score']) >= threshold_score:
       print("Got better property")
@@ -185,10 +186,14 @@ if __name__ == '__main__':
     #print("bulk updating # "+ str(counter))
     bulk.execute()
 
+  # sort by two column: city and score
+  new_property_sorted = sorted(new_property, key=itemgetter('city', 'score'),reverse=True)
+
+
   # Email Msg Content
   sta =['<!DOCTYPE html><html><body><table align="center"><tr><th style="width:80px">City</th><th style="width:80px">Addr</th><th style="width:80px">Type</th><th style="width:40px">Price</th><th style="width:40px">Bed</th><th style="width:40px">Bath</th><th style="width:40px">Sqrt</th><th style="width:40px">YearBuilt</th><th style="width:40px">Onmarket</th><th style="width:80px">Url</th><th style="width:40px">WeHomeScore</th> <th style="width:40px">WeHomeRent</th> <th style="width:40px">CapRate</th><th style="width:80px">Appreciation</th><th style="width:80px">CashReturn</th></tr>']
 
-  for p in new_property:
+  for p in new_property_sorted:
     sta.append(
     "<tr><td align='center'>{}</td><td align='center'>{}</td><td align='center'>{}</td><td align='center'>{}</td><td align='center'>{}</td><td align='center'>{}</td><td align='center'>{}</td><td align='center'>{}</td><td align='center'>{}</td><td align='center'>{}</td><td align='center'>{}</td><td align='center'>{}</td><td align='center'>{}</td><td aligh='center'>{}</td><td align='center'>{}</td></tr>".format(p["city"],p['address'],p['property_type'],p['price'],p['beds'],p['baths'],p['square_feet'],p['year_build'],p['days_on_market'],p['url'],p['score'],p['rent'],p['cap'],p['appre'],p['ratio'])
 
