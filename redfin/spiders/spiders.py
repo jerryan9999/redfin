@@ -25,27 +25,29 @@ class RedfinSpider(Spider):
         zipcode = document['_id']
         #if zipcode == '94502':
         url = "https://www.redfin.com/zipcode/"+zipcode
-        yield Request(url=url,callback=self.parse_zipcode,meta={'sequence':index})
+        yield Request(url=url,callback=self.parse_zipcode,meta={'sequence':index,'zipcode':zipcode})
 
   def parse_zipcode(self,response):
     # parse url like 'https://www.redfin.com/zipcode/98327'
     # get new request whose url links to csv
     index = response.meta['sequence']
+    zipcode = response.meta['zipcode']
     csv_url = response.xpath('//a[@id="download-and-save"]/@href').extract_first()
     if csv_url:
       url = 'https://www.redfin.com' + csv_url
-      return Request(url=url,callback=self.download_csv,meta={'sequence':index})
+      return Request(url=url,callback=self.download_csv,meta={'sequence':index,'zipcode':zipcode})
     else:
 
       market = re.search(r"market=(.+?)&",response.text).group(1)
       regionId = re.search(r"regionId=(.+?)&",response.text).group(1)
       regionType = re.search(r"regionType=([0-9]+)",response.text).group(1)
       url = "https://www.redfin.com/stingray/api/gis-csv?al=1&market={market}&num_homes=10000&ord=redfin-recommended-asc&page_number=1&region_id={regionId}&region_type={regionType}&sf=1,2,3,5,6,7&status=1&uipt=1,2,3,4,5,6&v=8".format(market=market,regionId=regionId,regionType=regionType)
-      return Request(url=url,callback=self.download_csv,meta={'sequence':index})
+      return Request(url=url,callback=self.download_csv,meta={'sequence':index,'zipcode':zipcode})
 
   def download_csv(self,response):
     index = response.meta['sequence']
-    with open("tmp/"+str(index)+'.csv','w') as f:
+    zipcode = response.meta['zipcode']
+    with open("tmp/"+str(zipcode)+'.csv','w') as f:
       f.write(response.body.decode('utf-8'))
 
   def parse_csv(self,response):
