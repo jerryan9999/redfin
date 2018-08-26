@@ -35,6 +35,13 @@ class RedfinSpider(Spider):
     if csv_url:
       url = 'https://www.redfin.com' + csv_url
       return Request(url=url,callback=self.download_csv,meta={'sequence':index})
+    else:
+
+      market = re.search(r"market=(.+?)&",response.text).group(1)
+      regionId = re.search(r"regionId=(.+?)&",response.text).group(1)
+      regionType = re.search(r"regionType=([0-9]+)",response.text).group(1)
+      url = "https://www.redfin.com/stingray/api/gis-csv?al=1&market={market}&num_homes=10000&ord=redfin-recommended-asc&page_number=1&region_id={regionId}&region_type={regionType}&sf=1,2,3,5,6,7&status=1&uipt=1,2,3,4,5,6&v=8".format(market=market,regionId=regionId,regionType=regionType)
+      return Request(url=url,callback=self.download_csv,meta={'sequence':index})
 
   def download_csv(self,response):
     index = response.meta['sequence']
