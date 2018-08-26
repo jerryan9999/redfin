@@ -189,20 +189,27 @@ if __name__ == '__main__':
   # sort by two column: city and score
   new_property_sorted = sorted(new_property, key=itemgetter('city', 'score'),reverse=True)
 
+  new_property_atlanta = [i for i in new_property_sorted if i['city']=='Atlanta']
+  new_property_others = [i for i in new_property_sorted if i['city']!='Atlanta']
 
   # Email Msg Content
-  sta =['<!DOCTYPE html><html><body><table align="center"><tr><th style="width:80px">City</th><th style="width:80px">Addr</th><th style="width:80px">Type</th><th style="width:40px">Price</th><th style="width:40px">Bed</th><th style="width:40px">Bath</th><th style="width:40px">Sqrt</th><th style="width:40px">YearBuilt</th><th style="width:40px">Onmarket</th><th style="width:80px">Url</th><th style="width:40px">WeHomeScore</th> <th style="width:40px">WeHomeRent</th> <th style="width:40px">CapRate</th><th style="width:80px">Appreciation</th><th style="width:80px">CashReturn</th></tr>']
+  def send_by_city(sorted_city,subject)
+    sta =['<!DOCTYPE html><html><body><table align="center"><tr><th style="width:80px">City</th><th style="width:80px">Addr</th><th style="width:80px">Type</th><th style="width:40px">Price</th><th style="width:40px">Bed</th><th style="width:40px">Bath</th><th style="width:40px">Sqrt</th><th style="width:40px">YearBuilt</th><th style="width:40px">Onmarket</th><th style="width:80px">Url</th><th style="width:40px">WeHomeScore</th> <th style="width:40px">WeHomeRent</th> <th style="width:40px">CapRate</th><th style="width:80px">Appreciation</th><th style="width:80px">CashReturn</th></tr>']
 
-  for p in new_property_sorted:
-    sta.append(
-    "<tr><td align='center'>{}</td><td align='center'>{}</td><td align='center'>{}</td><td align='center'>{}</td><td align='center'>{}</td><td align='center'>{}</td><td align='center'>{}</td><td align='center'>{}</td><td align='center'>{}</td><td align='center'>{}</td><td align='center'>{}</td><td align='center'>{}</td><td align='center'>{}</td><td aligh='center'>{}</td><td align='center'>{}</td></tr>".format(p["city"],p['address'],p['property_type'],p['price'],p['beds'],p['baths'],p['square_feet'],p['year_build'],p['days_on_market'],p['url'],p['score'],p['rent'],p['cap'],p['appre'],p['ratio'])
+    for p in sorted_city:
+      sta.append(
+        "<tr><td align='center'>{}</td><td align='center'>{}</td><td align='center'>{}</td><td align='center'>{}</td><td align='center'>{}</td><td align='center'>{}</td><td align='center'>{}</td><td align='center'>{}</td><td align='center'>{}</td><td align='center'>{}</td><td align='center'>{}</td><td align='center'>{}</td><td align='center'>{}</td><td aligh='center'>{}</td><td align='center'>{}</td></tr>".format(p["city"],p['address'],p['property_type'],p['price'],p['beds'],p['baths'],p['square_feet'],p['year_build'],p['days_on_market'],p['url'],p['score'],p['rent'],p['cap'],p['appre'],p['ratio'])
 
-    )
-  sta.append("</table></body></html>")
+      )
+    sta.append("</table></body></html>")
 
-  x = "".join(sta)
+    x = "".join(sta)
 
-  content = "{}".format(x)
+    content = "{}".format(x)
 
-  send_email(content=content, subject="New Coming Property")
+    send_email(content=content, subject=subject)
+
+  send_by_city(sorted_city=new_property_others,subject="New Coming Property")
+  send_by_city(sorted_city=new_property_atlanta,subject="New Coming Property-Atlanta")
+
   client.close()
