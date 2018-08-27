@@ -193,7 +193,7 @@ if __name__ == '__main__':
   new_property_others = [i for i in new_property_sorted if i['city']!='Atlanta']
 
   # Email Msg Content
-  def send_by_city(sorted_city,subject)
+  def send_by_city(sorted_city,subject):
     sta =['<!DOCTYPE html><html><body><table align="center"><tr><th style="width:80px">City</th><th style="width:80px">Addr</th><th style="width:80px">Type</th><th style="width:40px">Price</th><th style="width:40px">Bed</th><th style="width:40px">Bath</th><th style="width:40px">Sqrt</th><th style="width:40px">YearBuilt</th><th style="width:40px">Onmarket</th><th style="width:80px">Url</th><th style="width:40px">WeHomeScore</th> <th style="width:40px">WeHomeRent</th> <th style="width:40px">CapRate</th><th style="width:80px">Appreciation</th><th style="width:80px">CashReturn</th></tr>']
 
     for p in sorted_city:
