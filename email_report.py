@@ -25,25 +25,26 @@ next_DAT_objectid = ObjectId.from_datetime(next_DAY)
 
 def get_daily_report():
   # adding cities to show data
-  cities = ['Seattle', 'Fort Worth', 'Kissimmee', 'Atlanta', 'Dallas', 'Las Vegas', 'Orlando', 'Renton', 'San Francisco']
-  states = ('CA', 'TX', 'NJ', 'NY', 'FL', 'MA', 'WA', 'OR', 'DC', 'VA', 'MD')
+  cities = ['Seattle', 'Fort Worth', 'Kissimmee', 'Atlanta', 'Dallas', 'Las Vegas', 'Orlando', 'Renton', 'San Francisco','Orlando']
+  #states = ('CA', 'TX', 'NJ', 'NY', 'FL', 'MA', 'WA', 'OR', 'DC', 'VA', 'MD')
   client = pymongo.MongoClient(config['mongo_db_redfin']['hosts'])
   # states daily data update
   with client:
     collection = client[config['mongo_db_redfin']['room_database']]['Rooms']
     tables = []
-    for state in states:
-      alive_state = collection.find({'state':state, 'status':'Active'}).count()
-      new_online_state = collection.find({'state':state,'_id':{'$lt' : next_DAT_objectid, '$gte' : DAT_objectid} }).count()
-      sold_state = collection.find({'state':state, 'last_update':{'$gte':DAY,'$lt':next_DAY}, 'status':'sold'}).count()
+    #for state in states:
+    #  alive_state = collection.find({'state':state, 'status':'Active'}).count()
+    #  new_online_state = collection.find({'state':state,'_id':{'$lt' : next_DAT_objectid, '$gte' : DAT_objectid} }).count()
+    #  sold_state = collection.find({'state':state, 'last_update':{'$gte':DAY,'$lt':next_DAY}, 'status':'sold'}).count()
 
-      row_state = []
-      row_state.append(state)
-      row_state.append(alive_state)
-      row_state.append(new_online_state)
-      row_state.append(sold_state)
-      tables.append(row_state)
-      # city data
+    #  row_state = []
+    #  row_state.append(state)
+    #  row_state.append(alive_state)
+    #  row_state.append(new_online_state)
+    #  row_state.append(sold_state)
+    #  tables.append(row_state)
+    
+    # city data
     for city in cities:
 
        alive_city = collection.find({'city':city, 'status':'Active'}).count()
