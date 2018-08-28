@@ -61,7 +61,7 @@ def get_daily_report():
       alive_city = collection.find({'city':city, 'status':'Active'}).count()
       new_online_city = collection.find({'city':city,'_id':{'$lt' : next_DAT_objectid, '$gte' : DAT_objectid} }).count()
       sold_city = collection.find({'city':city, 'last_update':{'$gte':DAY,'$lt':next_DAY}, 'status':'sold'}).count()
-      zillow_response = requests.get(zillow_stat_url + zillow_range_url[city], headers=headers).content
+      zillow_response = requests.get(zillow_stat_url + zillow_range_url[city], headers=headers).text
       zillow_total_count = re.findall('"totalResultCount":\w+', zillow_response)[0].split(':')[-1]
       
       row_city = [
