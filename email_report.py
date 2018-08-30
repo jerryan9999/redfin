@@ -31,17 +31,18 @@ ZILLOW_RANGE_URL = {
   'Renton':        '&zoom=11&rect=-122274914,47365687,-122030468,47570851&rid=13480',
   'San Francisco': '&zoom=11&rect=-122555409,37655149,-122310963,37895040&rid=20330'
 }
+CITIES = ['Seattle', 'Fort Worth', 'Kissimmee', 'Atlanta', 'Dallas', 'Las Vegas', 'Orlando', 'Renton', 'San Francisco']
+# STATES = ('CA', 'TX', 'NJ', 'NY', 'FL', 'MA', 'WA', 'OR', 'DC', 'VA', 'MD')
+# Todo: city的统计report修改了格式，states的统计还没修改；email中的统计也没有states
 
 def get_daily_report():
   # adding cities to show data
-  cities = ['Seattle', 'Fort Worth', 'Kissimmee', 'Atlanta', 'Dallas', 'Las Vegas', 'Orlando', 'Renton', 'San Francisco']
-  #states = ('CA', 'TX', 'NJ', 'NY', 'FL', 'MA', 'WA', 'OR', 'DC', 'VA', 'MD')
   client = pymongo.MongoClient(CONFIG['mongo_db_redfin']['hosts'])
   # states daily data update
   with client:
     collection = client[CONFIG['mongo_db_redfin']['room_database']]['Rooms']
     tables = []
-    #for state in states:
+    # for state in STATES:
     #  alive_state = collection.find({'state':state, 'status':'Active'}).count()
     #  new_online_state = collection.find({'state':state,'_id':{'$lt' : next_DAT_objectid, '$gte' : DAT_objectid} }).count()
     #  sold_state = collection.find({'state':state, 'last_update':{'$gte':DAY,'$lt':next_DAY}, 'status':'sold'}).count()
@@ -54,7 +55,7 @@ def get_daily_report():
     #  tables.append(row_state)
     
     # city data
-    for city in cities:
+    for city in CITIES:
       alive_city = collection.find({'city':city, 'status':'Active'}).count()
       new_online_city = collection.find({'city':city,'_id':{'$lt' : next_DAT_objectid, '$gte' : DAT_objectid} }).count()
       sold_city = collection.find({'city':city, 'last_update':{'$gte':DAY,'$lt':next_DAY}, 'status':'sold'}).count()
@@ -99,6 +100,36 @@ def slack_notification(daily_report):
   request = requests.post(url = slack_url,
                           data = slack_data,
                           headers = slack_headers)
+
+
+
+# 计算与30天前相比的变化 方案1：从mongo里获取history
+def get_30d_ago_data_mongo():
+  pass # Todo
+
+# 计算与30天前相比的变化 方案2：用30天前的记录
+def get_30d_ago_data(daily_report):
+  today_30d_ago = date.today() - timedelta(days=30)
+  with open('email_report.json', 'r') as f:
+    history = json.loads(f.read())
+    data_30d_ago = history[str(today_30d_ago)]
+    # 按照今天统计的City、State数量计算重新计算30天前的Total
+    data_30d_ago = {key: value for key, value in data_30d_ago.items() if key in CITIES} # Todo: and STATES
+    data_30d_ago['Total'] = {
+      'Total.alive': sum([city['Total.alive'] for city in data_30d_ago.itervalues()]),
+      'New':         sum([city['New']         for city in data_30d_ago.itervalues()]),
+      'Sold':        sum([city['Sold']        for city in data_30d_ago.itervalues()])
+    }
+  with open('email_report.json', 'w') as f:
+    history[str(date.today())] = {
+      dic['name']: {
+        'Total.alive': dic['alive'],
+        'New':         dic['new'],
+        'Sold':        dic['sold']
+      } for dic in daily_report
+    }
+    f.write(json.dumps(history, indent=2))
+  return data_30d_ago
 
 
 # Email Msg Content
@@ -148,19 +179,7 @@ def email(daily_report):
     </table></body></html>'''
   
   # 计算与30天前相比的变化
-  today_30d_ago = date.today() - timedelta(days=30)
-  with open('email_report.json', 'r') as f:
-    history = json.loads(f.read())
-    data_30d_ago = history[str(today_30d_ago)]
-  with open('email_report.json', 'w') as f:
-    history[str(date.today())] = {
-      dic['name']: {
-        'Total.alive': dic['alive'],
-        'New':         dic['new'],
-        'Sold':        dic['sold']
-      } for dic in daily_report
-    }
-    f.write(json.dumps(history, indent=2))
+  data_30d_ago = get_30d_ago_data(daily_report)
   total = {'name': 'Total'}
   for dic in daily_report:
     for key, value in dic.items():
