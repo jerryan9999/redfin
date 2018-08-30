@@ -116,9 +116,9 @@ def get_30d_ago_data(daily_report):
     # 按照今天统计的City、State数量计算重新计算30天前的Total
     data_30d_ago = {key: value for key, value in data_30d_ago.items() if key in CITIES} # Todo: and STATES
     data_30d_ago['Total'] = {
-      'Total.alive': sum([city['Total.alive'] for city in data_30d_ago.itervalues()]),
-      'New':         sum([city['New']         for city in data_30d_ago.itervalues()]),
-      'Sold':        sum([city['Sold']        for city in data_30d_ago.itervalues()])
+      'Total.alive': sum([data['Total.alive'] for city, data in data_30d_ago.items()]),
+      'New':         sum([data['New']         for city, data in data_30d_ago.items()]),
+      'Sold':        sum([data['Sold']        for city, data in data_30d_ago.items()])
     }
   with open('email_report.json', 'w') as f:
     history[str(date.today())] = {
