@@ -161,14 +161,14 @@ def email(daily_report):
         <td align="right" style="color: rgb(0, {{ 180 - row['alive_dod']|int }}, 0)">   {{ '{:.0f} %'.format(row['alive_dod']) }} </td>
         {% endif %}
         <td align="right">  {{ row['new'] }} </td>
-        <td align="right">  {{ row['new%'] }} </td>
+        <td align="right">  {{ '{:.2f} %'.format(row['new%']) }} </td>
         {% if row['new_dod'] >= 0 %}
         <td align="right" style="color: rgb({{ 150 + row['new_dod']|int }}, 0, 0)"> + {{ '{:.0f} %'.format(row['new_dod']) }} </td>
         {% else %}
         <td align="right" style="color: rgb(0, {{ 180 - row['new_dod']|int }}, 0)">   {{ '{:.0f} %'.format(row['new_dod']) }} </td>
         {% endif %}
         <td align="right">  {{ row['sold'] }} </td>
-        <td align="right">  {{ row['sold%'] }} </td>
+        <td align="right">  {{ '{:.2f} %'.format(row['sold%']) }} </td>
         {% if row['sold_dod'] >= 0 %}
         <td align="right" style="color: rgb({{ 150 + row['sold_dod']|int }}, 0, 0)"> + {{ '{:.0f} %'.format(row['sold_dod']) }} </td>
         {% else %}
