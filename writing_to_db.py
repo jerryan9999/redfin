@@ -190,7 +190,8 @@ if __name__ == '__main__':
   new_property_sorted = sorted(new_property, key=itemgetter('city', 'score'),reverse=True)
 
   new_property_atlanta = [i for i in new_property_sorted if i['city']=='Atlanta']
-  new_property_others = [i for i in new_property_sorted if i['city']!='Atlanta']
+  new_property_orlando = [i for i in new_property_sorted if i['city']!='Orlando']
+  new_property_others = [i for i in new_property_sorted if i['city']!='Atlanta' and i['city']!='Orlando']
 
   # Email Msg Content
   def send_by_city(sorted_city,subject):
@@ -211,5 +212,6 @@ if __name__ == '__main__':
 
   send_by_city(sorted_city=new_property_others,subject="New Coming Property")
   send_by_city(sorted_city=new_property_atlanta,subject="New Coming Property-Atlanta")
+  send_by_city(sorted_city=new_property_orlando,subject="New Coming Property-Orlando")
 
   client.close()
