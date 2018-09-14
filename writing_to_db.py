@@ -106,8 +106,11 @@ def business_interested_property(item):
   threshold_score = 80
   global new_property
   # 感兴趣的房源筛选
-  if item['days_on_market'] and int(item['days_on_market'])<=recent_days and item['status']=="Active" and item['city'] in ['Orlando','Atlanta','Seattle','Bellevue','Bothell','Tacoma','Renton','Redmond']:
-    item = attach_score(item)
+  if item['days_on_market'] and int(item['days_on_market'])<=recent_days and item['status']=="Active" and item['city'] in ['Orlando','Atlanta','Seattle','Bellevue','Bothell','Tacoma','Renton','Redmond','Houston']:
+    if item['city']=="Houston" and item['price'] <=200000 and item['price'] >=150000:
+      item = attach_score(item)
+    else:
+      item = attach_score(item)
     if item.get('score') and item['score']!="No Data" and int(item['score']) >= threshold_score:
       print("Got better property")
       new_property.append(item)
@@ -191,6 +194,7 @@ if __name__ == '__main__':
 
   new_property_atlanta = [i for i in new_property_sorted if i['city']=='Atlanta']
   new_property_orlando = [i for i in new_property_sorted if i['city']=='Orlando']
+  new_property_houston = [i for i in new_property_sorted if i['city']=='Houston']
   new_property_others = [i for i in new_property_sorted if i['city']!='Atlanta' and i['city']!='Orlando']
 
   # Email Msg Content
@@ -216,5 +220,7 @@ if __name__ == '__main__':
     send_by_city(sorted_city=new_property_atlanta,subject="New Coming Property-Atlanta")
   if len(new_property_orlando)>0:
     send_by_city(sorted_city=new_property_orlando,subject="New Coming Property-Orlando")
+  if len(new_property_houston)>0:
+    send_by_city(sorted_city=new_property_houston,subject="New Coming Property-Houston")
 
   client.close()
