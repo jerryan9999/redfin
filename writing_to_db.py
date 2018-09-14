@@ -210,8 +210,11 @@ if __name__ == '__main__':
 
     send_email(content=content, subject=subject)
 
-  send_by_city(sorted_city=new_property_others,subject="New Coming Property")
-  send_by_city(sorted_city=new_property_atlanta,subject="New Coming Property-Atlanta")
-  send_by_city(sorted_city=new_property_orlando,subject="New Coming Property-Orlando")
+  if len(new_property_others)>0:
+    send_by_city(sorted_city=new_property_others,subject="New Coming Property")
+  if len(new_property_atlanta)>0:
+    send_by_city(sorted_city=new_property_atlanta,subject="New Coming Property-Atlanta")
+  if len(new_property_orlando)>0:
+    send_by_city(sorted_city=new_property_orlando,subject="New Coming Property-Orlando")
 
   client.close()
