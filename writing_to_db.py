@@ -107,10 +107,13 @@ def business_interested_property(item):
   global new_property
   # 感兴趣的房源筛选
   if item['days_on_market'] and int(item['days_on_market'])<=recent_days and item['status']=="Active" and item['city'] in ['Orlando','Atlanta','Seattle','Bellevue','Bothell','Tacoma','Renton','Redmond','Houston']:
-    if item['city']=="Houston" and item['price'] <=200000 and item['price'] >=150000:
-      item = attach_score(item)
-    else:
-      item = attach_score(item)
+    try:
+        if item['city']=="Houston" and int(item['price']) <=200000 and int(item['price']) >=150000:
+          item = attach_score(item)
+        else:
+          item = attach_score(item)
+    except Exception as e:
+        print(e)
     if item.get('score') and item['score']!="No Data" and int(item['score']) >= threshold_score:
       print("Got better property")
       new_property.append(item)
