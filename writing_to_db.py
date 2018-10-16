@@ -106,10 +106,14 @@ def business_interested_property(item):
   threshold_score = 80
   global new_property
   # 感兴趣的房源筛选
-  if item['days_on_market'] and int(item['days_on_market'])<=recent_days and item['status']=="Active" and item['city'] in ['Dallas','Chicago']:
+  if item['days_on_market'] and int(item['days_on_market'])<=recent_days and item['status']=="Active" and item['city'] in ['Dallas','Chicago','Seattle']:
     try:
-        if item['city']=="Houston" and int(item['price']) <=200000 and int(item['price']) >=150000:
-          item = attach_score(item)
+        if item['city']=="Houston":
+          if int(item['price']) <=200000 and int(item['price']) >=150000:
+            item = attach_score(item)
+        elif item['city']=="Seattle":
+          if int(item['price']) <=500000:
+            item = attach_score(item)
         else:
           item = attach_score(item)
     except Exception as e:
@@ -200,7 +204,8 @@ if __name__ == '__main__':
   new_property_houston = [i for i in new_property_sorted if i['city']=='Houston']
   new_property_dallas = [i for i in new_property_sorted if i['city']=='Dallas']
   new_property_chicago = [i for i in new_property_sorted if i['city']=='Chicago']
-  new_property_others = [i for i in new_property_sorted if i['city']!='Atlanta' and i['city']!='Orlando']
+  new_property_chicago = [i for i in new_property_sorted if i['city']=='Chicago']
+  new_property_seattle = [i for i in new_property_sorted if i['city']=='Seattle']
 
   # Email Msg Content
   def send_by_city(sorted_city,subject):
@@ -219,8 +224,8 @@ if __name__ == '__main__':
 
     send_email(content=content, subject=subject)
 
-  if len(new_property_others)>0:
-    send_by_city(sorted_city=new_property_others,subject="New Coming Property")
+  #if len(new_property_others)>0:
+  #  send_by_city(sorted_city=new_property_others,subject="New Coming Property")
   if len(new_property_atlanta)>0:
     send_by_city(sorted_city=new_property_atlanta,subject="New Coming Property-Atlanta")
   if len(new_property_orlando)>0:
@@ -231,6 +236,8 @@ if __name__ == '__main__':
     send_by_city(sorted_city=new_property_dallas,subject="New Coming Property-Dallas")
   if len(new_property_chicago)>0:
     send_by_city(sorted_city=new_property_chicago,subject="New Coming Property-Chicago")
+  if len(new_property_seattle)>0:
+    send_by_city(sorted_city=new_property_seattle,subject="New Coming Property-Seattle")
 
 
   client.close()
